@@ -1,0 +1,23 @@
+# === Visual Studio ===
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.obj
+
+# === Répertoires de build ===
+x64/
+Debug/
+PROJET_OpenGL/
+
+# === DLLs / Libs binaires ===
+*.exp
+
+# === Autres trucs à éviter ===
+*.DS_Store
+Thumbs.db
+
+# === Models ===
+models/*
+!models/voiture_gltf
