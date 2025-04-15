@@ -21,3 +21,4 @@ Thumbs.db
 # === Models ===
 models/*
 !models/voiture_gltf
+!models/map
