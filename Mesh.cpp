@@ -49,7 +49,7 @@ void Mesh::Draw(Shader& shader)
 		textures[i].Bind();
 	}
 
-	std::cout << "Drawing mesh with " << indices.size() << " indices." << std::endl;
+	// std::cout << "Drawing mesh with " << indices.size() << " indices." << std::endl;
 
 	// Dessine le Mesh actuel
 	glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);

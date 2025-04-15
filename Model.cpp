@@ -1,9 +1,15 @@
 #include "Model.h"
 
-Model::Model(const char* path)
+Model::Model(const std::string& path)
 {
 	loadModel(path);
 	calculateBoundingBox(); // Calculer la bounding box après avoir chargé le modèle
+}
+
+Model::Model(const std::string& path, const std::string& nodeName)
+{
+	loadSpecificNode(path, nodeName);
+	calculateBoundingBox();
 }
 
 void Model::Draw(Shader& shader)
@@ -11,6 +17,7 @@ void Model::Draw(Shader& shader)
 	for (unsigned int i = 0; i < meshes.size(); i++)
 		meshes[i].Draw(shader);
 }
+
 
 void Model::loadModel(const std::string& path)
 {
@@ -31,6 +38,43 @@ void Model::loadModel(const std::string& path)
 	// Traite le noeud racine de la scène (et récursiv. ses enfants)
 	processNode(scene->mRootNode, scene);
 }
+
+aiNode* Model::findNodeByName(aiNode* node, const std::string& name)
+{
+	if (node->mName.C_Str() == name)
+		return node;
+
+	for (unsigned int i = 0; i < node->mNumChildren; ++i)
+	{
+		aiNode* found = findNodeByName(node->mChildren[i], name);
+		if (found)
+			return found;
+	}
+	return nullptr;
+}
+
+void Model::loadSpecificNode(const std::string& path, const std::string& nodeName)
+{
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+
+	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	{
+		std::cerr << "[ASSIMP] Error: " << importer.GetErrorString() << std::endl;
+		return;
+	}
+
+	directory = path.substr(0, path.find_last_of('/'));
+
+	// Chercher le noeud voulu
+	aiNode* targetNode = findNodeByName(scene->mRootNode, nodeName);
+	if (targetNode)
+		processNode(targetNode, scene);
+	else
+		std::cerr << "[Model] Node named '" << nodeName << "' not found in the scene." << std::endl;
+}
+
+
 
 void Model::processNode(aiNode* node, const aiScene* scene)
 {

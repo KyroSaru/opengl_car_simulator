@@ -22,14 +22,20 @@ public:
 	// Pour définir une bounding box autour du modèle (pour le frustum culling)
 	BoundingBox boundingBox;
 
-	// Constructeur qui charge le modèle à partir d'un chemin
-	Model(const char* path);
+	// Constructeur qui charge le modèle à partir d'un chemin (ou un noeud/partie d'un modèle)
+	Model() = default; // pour déclarer sans init dans Car.h
+	Model(const std::string& path);
+	Model(const std::string& path, const std::string& nodeName);
 	// Parcours tous les meshs et les dessine
 	void Draw(Shader& shader);
 
 private:
 	// Charge un modèle à partir d'un fichier spécifié par son chemin
 	void loadModel(const std::string& path);
+	// Cherche un noeud par son nom & charge le noeud spécifié
+	aiNode* findNodeByName(aiNode* node, const std::string& name);
+	void loadSpecificNode(const std::string& path, const std::string& nodeName);
+
 	// Traite un noeud de la scène (récursif)
 	void processNode(aiNode* node, const aiScene* scene);
 	// Traite un mesh de la scène et le convertit en un objet Mesh

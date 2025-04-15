@@ -22,23 +22,10 @@ void Frustum::calculateFrustum(const glm::mat4& projection, const glm::mat4& vie
 // Vérifie si une boîte englobante est dans le frustum
 bool Frustum::isInFrustum(const BoundingBox& box) const {
     for (int i = 0; i < 6; i++) {
-        glm::vec3 normal(planes[i].x, planes[i].y, planes[i].z);
-        float distance = planes[i].w;
-
-        // Vérifie si la boîte est complètement en dehors d'un plan
-        if (glm::dot(normal, box.getPositiveVertex(normal)) + distance < 0) {
-            return false; // En dehors du frustum
+        // Si la boîte est complètement en dehors d'un plan, elle n'est pas dans le frustum
+        if (!box.intersects(planes[i])) {
+            return false; 
         }
     }
-    return true; // Dans le frustum
-}
-
-std::vector<Model*> Frustum::getVisibleModels(const std::vector<Model*>& models) const {
-    std::vector<Model*> visibleModels;
-    for (const auto& model : models) {
-        if (isInFrustum(model->boundingBox)) {
-            visibleModels.push_back(model);
-        }
-    }
-    return visibleModels;
+    return true;
 }

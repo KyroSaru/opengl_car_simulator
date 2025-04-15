@@ -1,5 +1,6 @@
 #include "Model.h"
 #include "Frustum.h"
+#include "Car.h"
 
 #include <chrono>
 
@@ -47,33 +48,24 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// Activer le backface culling (faire attention à comment les modèles sont crées dans Blender)
-	
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
-	
 
 	// Créer une caméra
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	// Charger les modèles
-	Model voiture("models/voiture_gltf/voiture.gltf");
-	/*
-	Model roueavg("models/voiture/voiture_roue1/voiture_roue_avg.obj");
-	Model roueavd("models/voiture/voiture_roue2/voiture_roue_avd.obj");
-	Model rouearg("models/voiture/voiture_roue3/voiture_roue_arg.obj");
-	Model roueard("models/voiture/voiture_roue4/voiture_roue_ard.obj");
-	*/
-	// Vecteur de modèles pour le frustum culling
-	std::vector<Model*> models = { &voiture };
+	Car voiture("models/voiture_gltf/voiture.gltf");
+	Model carte("models/map/scene.gltf");
 
-	// Vérifiez que le modèle est chargé
-	if (voiture.meshes.empty()) {
-		std::cerr << "Erreur: Le modèle n'a pas été chargé correctement." << std::endl;
-		return -1;
-	}
+	// Vecteur de modèles pour le frustum culling
+	std::vector<Model*> models = { &carte };
 
 	// ------------------------------------------
+
+	// Init la dernière frame avant le rendu
+	float lastFrame = static_cast<float>(glfwGetTime());
 
 	// Boucle principale de rendu
 	while (!glfwWindowShouldClose(window))
@@ -83,13 +75,31 @@ int main()
 		std::string windowTitle = "Simulateur Automobile - FPS: " + std::to_string(static_cast<int>(fps));
 		glfwSetWindowTitle(window, windowTitle.c_str());
 
+		// Calcul du Delta Time (temps entre 2 frames)
+		float currentFrame = static_cast<float>(glfwGetTime());
+		float deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		// Gestion de la Physique en 3eme pers.
+		if (camera.getMode() == THIRD_PERSON)
+		{
+			voiture.updatePhysics(deltaTime, window);
+			std::cout << "Car pos: [x:" << voiture.getPosition().x << ", y:" << voiture.getPosition().y << ", z:" << voiture.getPosition().z << "]" << std::endl;
+		}
+
 		// Définit la couleur de fond de la fenêtre (RGBA)
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Nettoie le back buffer et le depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+		// ----------------------------------------
+
+		// [CAMERA / FRUSTUM] 
 		// Gére les entrées de la caméra
 		camera.Inputs(window);
+		// Met à jour la caméra en fonction de son mode et de la voiture
+		camera.update(voiture.getPosition(), voiture.getDirection());
 
 		// Transformations des matrices vue/projection
 		shaderProgram.Activate();
@@ -102,20 +112,33 @@ int main()
 		Frustum frustum;
 		frustum.calculateFrustum(projection, view);
 
-		// Transformations du modèle
-		glm::mat4 mat_model = glm::mat4(1.0f);
-		mat_model = glm::translate(mat_model, glm::vec3(0.0f, 0.0f, 0.0f)); // Translation au centre de l'univers
-		// model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f)); // Pour la mettre à l'endroit
-		mat_model = glm::scale(mat_model, glm::vec3(1.0f, 1.0f, 1.0f));	// Homotéthie pour réduire la taille du modèle
-		shaderProgram.setMat4("model", mat_model);
+		// ----------------------------------------
 
-		// Dessiner le modèle (en prenant en compte sa bounding box et en utilisant le frustum culling)
-		std::vector<Model*> visibleModels = frustum.getVisibleModels(models);
-		for (const auto& model : visibleModels) {
-			std::cout << "BoundingBox Min: " << model->boundingBox.min.x << ", " << model->boundingBox.min.y << ", " << model->boundingBox.min.z << std::endl;
-			std::cout << "BoundingBox Max: " << model->boundingBox.max.x << ", " << model->boundingBox.max.y << ", " << model->boundingBox.max.z << std::endl;
-			model->Draw(shaderProgram);
+		// [MODELE DE VOITURE]
+		// Dessiner la voiture et les autres modèles (en prenant en compte leur bounding box et en utilisant le frustum culling)
+		if (voiture.isVisible(frustum))
+		{
+			voiture.Draw(shaderProgram);
 		}
+
+		// [MODELE DE DEBUG]
+		// Position fixe pour que le modèle de référence ne se déplace pas avec la voiture
+		glm::mat4 fixModelMatrix = glm::mat4(1.0f);
+		fixModelMatrix = glm::translate(fixModelMatrix, glm::vec3(0.0f, 0.0f, -15.0f));
+		for (const auto& model : models) {
+			// Nouvelle boundingbox du modèle après transformation par model matrix
+			BoundingBox transformedBox = model->boundingBox.getTransformed(fixModelMatrix);
+
+			if (frustum.isInFrustum(transformedBox))
+			{
+				shaderProgram.setMat4("model", fixModelMatrix);
+				std::cout << "BoundingBox Min: " << model->boundingBox.min.x << ", " << model->boundingBox.min.y << ", " << model->boundingBox.min.z << std::endl;
+				std::cout << "BoundingBox Max: " << model->boundingBox.max.x << ", " << model->boundingBox.max.y << ", " << model->boundingBox.max.z << std::endl;
+				model->Draw(shaderProgram);
+			}
+		}
+
+		// ----------------------------------------
 
 		// Swap les buffers (de back à front / affiche le rendu)
 		glfwSwapBuffers(window);

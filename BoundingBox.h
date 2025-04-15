@@ -19,10 +19,11 @@ public:
     // Vérifie si la bounding box intersecte un plan
     bool intersects(const glm::vec4& plane) const;
 
+    // Applique les transfos de la model matrix à la Bounding Box
+    BoundingBox getTransformed(const glm::mat4& modelMatrix) const;
+
     // Retourne le sommet le plus proche d'un plan
     glm::vec3 getPositiveVertex(const glm::vec3& normal) const;
-    // Retourne le sommet le plus éloigné d'un plan
-    glm::vec3 getNegativeVertex(const glm::vec3& normal) const;
 };
 
 #endif // BOUNDINGBOX_H

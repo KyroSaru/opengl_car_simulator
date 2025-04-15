@@ -7,7 +7,8 @@
 
 class Frustum {
 private:
-    glm::vec4 planes[6]; // Les 6 plans du frustum
+    // Les 6 plans du frustum
+    glm::vec4 planes[6]; 
 
 public:
     // Calcule les plans du frustum à partir des matrices projection et vue
@@ -15,9 +16,6 @@ public:
 
     // Vérifie si une boîte englobante est dans le frustum
     bool isInFrustum(const BoundingBox& box) const;
-
-    // Retourne les modèles visibles dans le frustum
-    std::vector<Model*> getVisibleModels(const std::vector<Model*>& models) const;
 };
 
 #endif // FRUSTUM_H
