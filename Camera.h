@@ -46,7 +46,7 @@ private:
 	int width, height;
 	// Ajuster la vitesse de la caméra et la sensibilité quand on regarde autour
 	float speed = 0.1f;
-	float sensitivity = 75.0f;
+	float sensitivity = 50.0f;
 
 	// flags : évite que la caméra ne saute au 1er clic gauche & sait si on vient de passer à la 3ème pers.
 	bool firstClick = true;
@@ -56,7 +56,7 @@ private:
 	CameraMode mode = NO_CLIP;
 
 	// Variables pour la caméra en 3ème personne
-	float distanceToTarget = 10.0f;
+	float distanceToTarget = 15.0f;
 	float yaw;   // Rotation horizontale
 	float pitch; // Rotation verticale
 };

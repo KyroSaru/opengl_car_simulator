@@ -12,6 +12,12 @@ Car::Car(const std::string& modelPath)
     wheels[1] = Model(modelPath, "Roue_ARG");
     wheels[2] = Model(modelPath, "Roue_AVD");
     wheels[3] = Model(modelPath, "Roue_AVG");
+
+    // Initialiser les positions locales des roues (calculer via blender + screen)
+    //wheelOffsets[0] = glm::vec3(0.0f, 0.0f, 0.0f);
+    //wheelOffsets[1] = glm::vec3(0.0f, 0.0f, 0.0f);
+    wheelOffsets[2] = glm::vec3(1.375f, 0.0f, -1.98f);
+    wheelOffsets[3] = glm::vec3(-1.375f, 0.0f, -1.95f);
 }
 
 glm::vec3 Car::getPosition() const 
@@ -35,11 +41,20 @@ void Car::setDirection(const glm::vec3& newDirection)
 }
 
 glm::mat4 Car::getBodyModelMatrix() const {
-    // Transfos du corps
+    // [Transfos du corps]
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position); // Translation à la position correcte (qui est changeante)
-    model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotation de base pour la mettre "à l'endroit"
-    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f)); // Homotéthie pour réduire la taille du modèle
+
+    // Translation à la position correcte (qui est changeante)
+    model = glm::translate(model, position);
+
+    // Rotation de base pour la mettre "à l'endroit"
+    model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    // Calcul l'angle de la direction quand on tourne et applique la rotation en fonction de celle-ci
+    float angle = glm::degrees(atan2(direction.x, -direction.z));
+    model = glm::rotate(model, glm::radians(-angle), glm::vec3(0.0f, 1.0f, 0.0f));
+    
+    // Homotéthie pour réduire la taille du modèle
+    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f)); 
 
     return model;
 }
@@ -58,7 +73,7 @@ bool Car::isVisible(const Frustum& frustum) const {
     return false;
 }
 
-void Car::Draw(Shader& shader) 
+void Car::Draw(Shader& shader)
 {
     // Transfos du corps
     glm::mat4 body_model = getBodyModelMatrix();
@@ -70,6 +85,20 @@ void Car::Draw(Shader& shader)
     for (int i = 0; i < 4; i++) // 0 : ARD, 1 : ARG, 2 : AVD , 3 : AVG
     {
         glm::mat4 wheel_model = body_model;
+
+        // Translation au centre de la roue
+        wheel_model = glm::translate(wheel_model, -wheelOffsets[i]);
+
+        // Appliquer l'angle de braquage uniquement aux roues avant
+        if (i == 2 || i == 3)
+        {
+            wheel_model = glm::rotate(wheel_model, glm::radians(steeringAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+
+        // Retour au centre original
+        wheel_model = glm::translate(wheel_model, wheelOffsets[i]);
+
+        std::cout << "Wheel " << i << " Model Matrix: " << glm::to_string(wheel_model) << std::endl;
         shader.setMat4("model", wheel_model);
         wheels[i].Draw(shader);
     }
@@ -79,18 +108,88 @@ void Car::Draw(Shader& shader)
 
 void Car::updatePhysics(float deltaTime, GLFWwindow* window)
 {
-    // Vitesse de déplacement
-    float moveSpeed = 5.0f;
+    // Vitesse de braquage des roues
+    float steeringSpeed = 65.0f;
 
-    // Avancer
+    // [TOURNER/ANGLE DE BRAQUAGE]
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        steeringAngle += steeringSpeed * deltaTime;
+        // Pour ne pas dépasser l'angle max de braquage
+        steeringAngle = std::min(steeringAngle, maxSteeringAngle);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        steeringAngle -= steeringSpeed * deltaTime;
+        // Pour ne pas dépasser l'angle max de braquage
+        steeringAngle = std::max(steeringAngle, -maxSteeringAngle);
+    }
+    else
+    {
+        // Vitesse à laquelle les roues reviennent droite
+        float returnSpeed = 25.0f;
+        if (steeringAngle > 0.0f)
+        {
+            steeringAngle -= returnSpeed * deltaTime;
+            if (steeringAngle < 0.0f) steeringAngle = 0.0f;
+        }
+        else if (steeringAngle < 0.0f)
+        {
+            steeringAngle += returnSpeed * deltaTime;
+            if (steeringAngle > 0.0f) steeringAngle = 0.0f;
+        }
+    }
+
+    // [ACCELERATION/DECELERATION]
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        position += direction * moveSpeed * deltaTime;
+        currentSpeed += acceleration * deltaTime;
+        currentSpeed = std::min(currentSpeed, maxSpeed);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        currentSpeed -= acceleration * deltaTime;
+        // Marche arrière plus lente que marche avant
+        currentSpeed = std::max(currentSpeed, -maxSpeed / 2.0f); 
+    }
+    else
+    {
+        // Décélération progressive (frein moteur)
+        if (currentSpeed > 0.0f)
+        {
+            currentSpeed -= deceleration * deltaTime;
+            if (currentSpeed < 0.0f) currentSpeed = 0.0f;
+        }
+        else if (currentSpeed < 0.0f)
+        {
+            currentSpeed += deceleration * deltaTime;
+            if (currentSpeed > 0.0f) currentSpeed = 0.0f;
+        }
     }
 
-    // Reculer
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    // Calcul la distance par rapport à la vitesse et au temps entre 2 frames
+    float distance = currentSpeed * deltaTime;
+
+    // Rotation et déplacement (maintenant qu'on a angle de braquage et vitesse courante)
+    if (std::abs(currentSpeed) > 0.001f)
     {
-        position -= direction * moveSpeed * deltaTime;
+        float steeringRad = glm::radians(steeringAngle);
+        // Angle de braquage quasi nulle, on va juste tout droit
+        if (std::abs(steeringAngle) < 0.01f)
+        {
+            position += direction * distance;
+        }
+        else
+        {
+            // Approximation du rayon de la courbe par rapport à notre angle de braquage nous permettant de trouver notre vitesse angulaire (angle nécessaire pour tourner correctement à notre vitesse)
+            float turnRadius = 4.0f / glm::tan(steeringRad); // 4.0f : longueur entre les essieux (déterminé sur approximativ. sur blender à 6.0f mais baissé un peu parce qu'on peut modifier les valeurs!)
+            float angularVelocity = (currentSpeed / turnRadius) * deltaTime;
+            // On applique la rotation à notre direction et on avance dans la nouvelle direction
+            glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angularVelocity, glm::vec3(0.0f, 1.0f, 0.0f));
+            direction = glm::normalize(glm::vec3(rotation * glm::vec4(direction, 0.0f)));
+            position += direction * distance;
+        }
     }
 }
+
+

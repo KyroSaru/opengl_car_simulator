@@ -32,10 +32,21 @@ private:
 	// Séparation des parts du véhicule (pour futur animation des roues)
 	Model body;
 	Model wheels[4];
+	// Positions locales des roues par rapport au centre de la voiture
+	glm::vec3 wheelOffsets[4];
 
-	// Attributs pour la physique
+	// [ATTRIBUTS PHYSIQUE]
 	glm::vec3 position;
 	glm::vec3 direction;
+
+	// Angle de braquage des roues avant (en degrés)
+	float steeringAngle = 0.0f; 
+	const float maxSteeringAngle = 30.0f;
+	// Vitesse
+	float currentSpeed = 0.0f;
+	float maxSpeed = 10.0f;
+	float acceleration = 10.0f;     // m/s²
+	float deceleration = 5.0f;      // m/s²
 };
 
 #endif CAR_H
