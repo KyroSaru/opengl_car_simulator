@@ -23,6 +23,9 @@ public:
 
 	// Dessine la voiture
 	void Draw(Shader& shader);
+	// Dessine la bounding box de la voiture
+	void DrawWireframes(Shader& wireframeShader, const glm::mat4& view, const glm::mat4& projection) const;
+
 
 	// -----------------------
 
@@ -47,6 +50,9 @@ private:
 	float maxSpeed = 10.0f;
 	float acceleration = 10.0f;     // m/s²
 	float deceleration = 5.0f;      // m/s²
+	// Rotation des roues
+	float wheelRotationAngle = 0.0f;
+	float wheelRadius = 0.5f;
 };
 
 #endif CAR_H

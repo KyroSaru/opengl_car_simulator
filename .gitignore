@@ -15,6 +15,7 @@ PROJET_OpenGL/
 *.exp
 
 # === Autres trucs à éviter ===
+INFOS.txt
 *.DS_Store
 Thumbs.db
 

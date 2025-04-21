@@ -1,4 +1,5 @@
 #include "Car.h"
+#include "BoundingBox.h"
 #include <glm/gtx/string_cast.hpp>
 
 Car::Car(const std::string& modelPath)
@@ -13,11 +14,19 @@ Car::Car(const std::string& modelPath)
     wheels[2] = Model(modelPath, "Roue_AVD");
     wheels[3] = Model(modelPath, "Roue_AVG");
 
-    // Initialiser les positions locales des roues (calculer via blender + screen)
-    //wheelOffsets[0] = glm::vec3(0.0f, 0.0f, 0.0f);
-    //wheelOffsets[1] = glm::vec3(0.0f, 0.0f, 0.0f);
-    wheelOffsets[2] = glm::vec3(1.375f, 0.0f, -1.98f);
-    wheelOffsets[3] = glm::vec3(-1.375f, 0.0f, -1.95f);
+    // Initialiser les positions locales des roues (calculer via blender + screen) | A REVOIR POUR EVITER QUE LES ROUES AIENT L'AIR DE SAUTILLER
+    wheelOffsets[0] = glm::vec3(1.375f, 0.572f, 3.141f);
+    wheelOffsets[1] = glm::vec3(-1.375f, 0.572f, 3.141f);
+    wheelOffsets[2] = glm::vec3(1.375f, 0.572f, -1.9615f);
+    wheelOffsets[3] = glm::vec3(-1.375f, 0.572f, -1.9615f);
+
+    // Ajustement manuel des bounding box pour épouser correctement les roues (pour collision plus tard)
+    wheels[0].boundingBox.adjustMax(1.2f, 0.0f, 2.5f);
+    wheels[1].boundingBox.adjustMax(0.0f, 0.0f, 2.5f);
+    wheels[1].boundingBox.adjustMin(1.2f, 0.0f, 0.0f);
+    wheels[2].boundingBox.adjustMax(1.2f, 0.0f, 0.0f);
+    wheels[2].boundingBox.adjustMin(0.0f, 0.0f, 1.315f);
+    wheels[3].boundingBox.adjustMin(1.2f, 0.0f, 1.315f);
 }
 
 glm::vec3 Car::getPosition() const 
@@ -81,7 +90,46 @@ void Car::Draw(Shader& shader)
     shader.setMat4("model", body_model);
     body.Draw(shader);
 
+
     // Transfos des roues
+    for (int i = 0; i < 4; i++) // 0 : ARD, 1 : ARG, 2 : AVD , 3 : AVG
+    {
+        glm::mat4 wheel_model = body_model;
+
+        // Translation au centre de la roue
+        wheel_model = glm::translate(wheel_model, -wheelOffsets[i]);
+
+        // Appliquer l'angle de braquage uniquement aux roues avant
+        if (i == 2 || i == 3)
+        {
+            wheel_model = glm::rotate(wheel_model, glm::radians(steeringAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+
+        wheel_model = glm::rotate(wheel_model, glm::radians(wheelRotationAngle), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        // Retour au centre original
+        wheel_model = glm::translate(wheel_model, wheelOffsets[i]);
+
+        std::cout << "Wheel " << i << " Model Matrix: " << glm::to_string(wheel_model) << std::endl;
+        shader.setMat4("model", wheel_model);
+        wheels[i].Draw(shader);
+
+       
+    }
+}
+
+void Car::DrawWireframes(Shader& wireframeShader, const glm::mat4& view, const glm::mat4& projection) const
+{
+    // Activer le shader wireframe
+    wireframeShader.Activate();
+    wireframeShader.setMat4("view", view);
+    wireframeShader.setMat4("projection", projection);
+
+    // Dessiner la bounding box du corps
+    glm::mat4 body_model = getBodyModelMatrix();
+    wireframeShader.setMat4("model", body_model);
+    body.boundingBox.drawWireframe(wireframeShader);
+
     for (int i = 0; i < 4; i++) // 0 : ARD, 1 : ARG, 2 : AVD , 3 : AVG
     {
         glm::mat4 wheel_model = body_model;
@@ -98,11 +146,12 @@ void Car::Draw(Shader& shader)
         // Retour au centre original
         wheel_model = glm::translate(wheel_model, wheelOffsets[i]);
 
-        std::cout << "Wheel " << i << " Model Matrix: " << glm::to_string(wheel_model) << std::endl;
-        shader.setMat4("model", wheel_model);
-        wheels[i].Draw(shader);
+        // Dessiner les bounding boxes des roues
+        wireframeShader.setMat4("model", wheel_model);
+        wheels[i].boundingBox.drawWireframe(wireframeShader);
     }
 }
+
 
 // -----------------------------------------
 
@@ -169,6 +218,9 @@ void Car::updatePhysics(float deltaTime, GLFWwindow* window)
 
     // Calcul la distance par rapport à la vitesse et au temps entre 2 frames
     float distance = currentSpeed * deltaTime;
+
+    // Calcul de la vitesse de rotation de la roue par rapport à la distance
+    wheelRotationAngle += (distance / wheelRadius) * (180 / glm::pi<float>());
 
     // Rotation et déplacement (maintenant qu'on a angle de braquage et vitesse courante)
     if (std::abs(currentSpeed) > 0.001f)

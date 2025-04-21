@@ -1,6 +1,7 @@
 #ifndef BOUNDINGBOX_H
 #define BOUNDINGBOX_H
 
+#include "Shader.h"
 #include <glm/glm.hpp>
 
 class BoundingBox {
@@ -16,6 +17,10 @@ public:
     // Met à jour la bounding box avec un point
     void update(const glm::vec3& point);
 
+    // Ajustement manuel des Bounding Box
+    void adjustMin(float xOffset, float yOffset, float zOffset);
+    void adjustMax(float xOffset, float yOffset, float zOffset);
+
     // Vérifie si la bounding box intersecte un plan
     bool intersects(const glm::vec4& plane) const;
 
@@ -24,6 +29,9 @@ public:
 
     // Retourne le sommet le plus proche d'un plan
     glm::vec3 getPositiveVertex(const glm::vec3& normal) const;
+
+    // Afficher la Bounding Box en wireframe pour debug
+    void drawWireframe(Shader& shader) const;
 };
 
 #endif // BOUNDINGBOX_H

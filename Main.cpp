@@ -43,6 +43,7 @@ int main()
 
 	// Créer un Shader Program avec les Vertex Shader et Fragment Shader spécifiés
 	Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
+	Shader wireframeShader("shaders/wireframe.vert", "shaders/wireframe.frag");
 	
 	// Activer le mode de profondeur (Z-buffer/Depth Buffer)
 	glEnable(GL_DEPTH_TEST);
@@ -119,10 +120,12 @@ int main()
 		if (voiture.isVisible(frustum))
 		{
 			voiture.Draw(shaderProgram);
+			voiture.DrawWireframes(wireframeShader, view, projection);
 		}
 
 		// [MODELE DE DEBUG]
 		// Position fixe pour que le modèle de référence ne se déplace pas avec la voiture
+		shaderProgram.Activate();
 		glm::mat4 fixModelMatrix = glm::mat4(1.0f);
 		fixModelMatrix = glm::translate(fixModelMatrix, glm::vec3(0.0f, -1.0f, -15.0f));
 		fixModelMatrix = glm::rotate(fixModelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));

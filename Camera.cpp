@@ -148,7 +148,7 @@ void Camera::Inputs(GLFWwindow* window)
 
 			// Ajuste les angles de rotation
 			yaw += rotY;
-			pitch -= rotX;
+			pitch += rotX;
 
 			// Limite le pitch pour éviter les inversions (barrel-roll)
 			if (pitch > 45.0f) pitch = 45.0f;	// vers sol
