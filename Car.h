@@ -1,8 +1,11 @@
 #ifndef CAR_H
 #define CAR_H
 
+#include<memory>
+
 #include "Model.h"
 #include "Frustum.h"
+#include"Gamepad.h"
 
 class Car
 {
@@ -12,6 +15,9 @@ public:
 	// Getters/Setters
 	glm::vec3 getPosition() const;
 	glm::vec3 getDirection() const;
+	std::shared_ptr<Gamepad> getGamepad();
+	void setGamepad(std::shared_ptr<Gamepad> g);
+	bool hasGamepad() const;
 	void setPosition(const glm::vec3& position);
 	void setDirection(const glm::vec3& direction);
 
@@ -52,7 +58,9 @@ private:
 	float deceleration = 5.0f;      // m/s²
 	// Rotation des roues
 	float wheelRotationAngle = 0.0f;
-	float wheelRadius = 0.5f;
+	float wheelRadius = 0.0289f;
+	// Gestion des manettes (en dehors de la classe)
+	std::shared_ptr<Gamepad> _gamepad = nullptr;
 };
 
 #endif CAR_H

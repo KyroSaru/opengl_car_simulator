@@ -4,6 +4,9 @@
 
 #include <chrono>
 
+#include"JoystickManager.h"
+#include"Gamepad.h"
+
 const unsigned int width = 800;
 const unsigned int height = 600;
 
@@ -53,12 +56,17 @@ int main()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
+	// Activer le blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	// Créer une caméra
 	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	// Charger les modèles
-	Car voiture("models/voiture_gltf/voiture.gltf");
-	Model carte("models/map/scene.gltf");
+	Car voiture("models/voiture_gltf/Car.gltf");
+	//voiture.setGamepad(std::make_shared<Gamepad>(0));
+	Model carte("models/sol_gltf/sol_gravier.gltf");
 
 	// Vecteur de modèles pour le frustum culling
 	std::vector<Model*> models = { &carte };
@@ -67,10 +75,13 @@ int main()
 
 	// Init la dernière frame avant le rendu
 	float lastFrame = static_cast<float>(glfwGetTime());
+	JoystickManager joystickManager;
+
 
 	// Boucle principale de rendu
 	while (!glfwWindowShouldClose(window))
 	{
+
 		// Mettre à jour le titre de la fenêtre (dans la boucle de rendu car on affiche les FPS)
 		float fps = calculateFPS();
 		std::string windowTitle = "Simulateur Automobile - FPS: " + std::to_string(static_cast<int>(fps));
@@ -81,11 +92,24 @@ int main()
 		float deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		// Gestion dynamique de la manette 
+		// note : ajouter des id/noms aux voitures
+		if (!voiture.hasGamepad()) {
+			auto gamepad = joystickManager.findGamepad();
+			if (gamepad) {
+				voiture.setGamepad(gamepad);
+				std::cout << "Manette n°" << gamepad->jid() << "connectée ; Nom de la manette : " << glfwGetJoystickName(gamepad->jid()) << std::endl;
+			}
+		}
+		else if (voiture.hasGamepad() && !joystickManager.isConnected(voiture.getGamepad()->jid())) {
+			voiture.setGamepad(nullptr);
+			std::cout << "Manette déconnectée ! Reprise des contrôles clavier.\n";
+		}
 		// Gestion de la Physique en 3eme pers.
 		if (camera.getMode() == THIRD_PERSON)
 		{
-			voiture.updatePhysics(deltaTime, window);
-			std::cout << "Car pos: [x:" << voiture.getPosition().x << ", y:" << voiture.getPosition().y << ", z:" << voiture.getPosition().z << "]" << std::endl;
+			voiture.updatePhysics(deltaTime, window); // ou alors mettre les methodes du manager en static
+			//std::cout << "Car pos: [x:" << voiture.getPosition().x << ", y:" << voiture.getPosition().y << ", z:" << voiture.getPosition().z << "]" << std::endl;
 		}
 
 		// Définit la couleur de fond de la fenêtre (RGBA)
@@ -95,7 +119,6 @@ int main()
 
 
 		// ----------------------------------------
-
 		// [CAMERA / FRUSTUM] 
 		// Gére les entrées de la caméra
 		camera.Inputs(window);
@@ -121,25 +144,6 @@ int main()
 		{
 			voiture.Draw(shaderProgram);
 			voiture.DrawWireframes(wireframeShader, view, projection);
-		}
-
-		// [MODELE DE DEBUG]
-		// Position fixe pour que le modèle de référence ne se déplace pas avec la voiture
-		shaderProgram.Activate();
-		glm::mat4 fixModelMatrix = glm::mat4(1.0f);
-		fixModelMatrix = glm::translate(fixModelMatrix, glm::vec3(0.0f, -1.0f, -15.0f));
-		fixModelMatrix = glm::rotate(fixModelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		for (const auto& model : models) {
-			// Nouvelle boundingbox du modèle après transformation par model matrix
-			BoundingBox transformedBox = model->boundingBox.getTransformed(fixModelMatrix);
-
-			if (frustum.isInFrustum(transformedBox))
-			{
-				shaderProgram.setMat4("model", fixModelMatrix);
-				std::cout << "BoundingBox Min: " << model->boundingBox.min.x << ", " << model->boundingBox.min.y << ", " << model->boundingBox.min.z << std::endl;
-				std::cout << "BoundingBox Max: " << model->boundingBox.max.x << ", " << model->boundingBox.max.y << ", " << model->boundingBox.max.z << std::endl;
-				model->Draw(shaderProgram);
-			}
 		}
 
 		// ----------------------------------------

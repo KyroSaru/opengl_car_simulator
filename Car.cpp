@@ -49,6 +49,10 @@ void Car::setDirection(const glm::vec3& newDirection)
     direction = glm::normalize(newDirection);
 }
 
+std::shared_ptr<Gamepad> Car::getGamepad() { return _gamepad;  }
+void Car::setGamepad(std::shared_ptr<Gamepad> g) { _gamepad = g; }
+bool Car::hasGamepad() const { return _gamepad != nullptr; }
+
 glm::mat4 Car::getBodyModelMatrix() const {
     // [Transfos du corps]
     glm::mat4 model = glm::mat4(1.0f);
@@ -86,7 +90,7 @@ void Car::Draw(Shader& shader)
 {
     // Transfos du corps
     glm::mat4 body_model = getBodyModelMatrix();
-    std::cout << "Car Model Matrix: " << glm::to_string(body_model) << std::endl;
+    //std::cout << "Car Model Matrix: " << glm::to_string(body_model) << std::endl;
     shader.setMat4("model", body_model);
     body.Draw(shader);
 
@@ -110,7 +114,7 @@ void Car::Draw(Shader& shader)
         // Retour au centre original
         wheel_model = glm::translate(wheel_model, wheelOffsets[i]);
 
-        std::cout << "Wheel " << i << " Model Matrix: " << glm::to_string(wheel_model) << std::endl;
+        //std::cout << "Wheel " << i << " Model Matrix: " << glm::to_string(wheel_model) << std::endl;
         shader.setMat4("model", wheel_model);
         wheels[i].Draw(shader);
 
@@ -160,17 +164,47 @@ void Car::updatePhysics(float deltaTime, GLFWwindow* window)
     // Vitesse de braquage des roues
     float steeringSpeed = 65.0f;
 
-    // [TOURNER/ANGLE DE BRAQUAGE]
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    float steerInput = 0.0f;
+    float accelInput = 0.0f;
+
+    // si une manette est connectée on gère les contrôles avec
+    if (_gamepad)
     {
-        steeringAngle += steeringSpeed * deltaTime;
+        steerInput = _gamepad->getLeftStickX(); // stick gauche horizontal
+        float r2 = _gamepad->getRightTrigger(); // accélération
+        float l2 = _gamepad->getLeftTrigger();  // frein
+
+        accelInput = r2 - l2; // entre -1 et +1
+    }
+    else
+    {
+        // [TOURNER/ANGLE DE BRAQUAGE]
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        {
+            steerInput = 1.0f;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        {
+            steerInput = -1.0f;
+        }
+
+        // [ACCELERATION/DECELERATION]
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            accelInput = 1.0f;
+        }
+        else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        {
+            accelInput = -1.0f;
+        }
+    }
+
+    // Appliquer le braquage
+    if (steerInput != 0.0f)
+    {
+        steeringAngle += steerInput * steeringSpeed * deltaTime;
         // Pour ne pas dépasser l'angle max de braquage
         steeringAngle = std::min(steeringAngle, maxSteeringAngle);
-    }
-    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        steeringAngle -= steeringSpeed * deltaTime;
-        // Pour ne pas dépasser l'angle max de braquage
         steeringAngle = std::max(steeringAngle, -maxSteeringAngle);
     }
     else
@@ -189,17 +223,13 @@ void Car::updatePhysics(float deltaTime, GLFWwindow* window)
         }
     }
 
-    // [ACCELERATION/DECELERATION]
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    // Appliquer l'accélération ou la décélération
+    if (accelInput != 0.0f)
     {
-        currentSpeed += acceleration * deltaTime;
-        currentSpeed = std::min(currentSpeed, maxSpeed);
-    }
-    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        currentSpeed -= acceleration * deltaTime;
+        currentSpeed += accelInput * acceleration * deltaTime;
         // Marche arrière plus lente que marche avant
-        currentSpeed = std::max(currentSpeed, -maxSpeed / 2.0f); 
+        currentSpeed = std::min(currentSpeed, maxSpeed);
+        currentSpeed = std::max(currentSpeed, -maxSpeed / 2.0f);
     }
     else
     {
