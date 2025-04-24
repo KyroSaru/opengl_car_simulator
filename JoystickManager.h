@@ -1,6 +1,5 @@
 #pragma once
 
-#include<vector>
 #include<iostream>
 #include<GLFW/glfw3.h>
 #include<memory>
