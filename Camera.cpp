@@ -125,8 +125,21 @@ void Camera::Inputs(GLFWwindow* window)
 
 	// [3RD PERSON]
 	else 
-	{   // Gestion Souris
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{   
+		float rotX = 0.0f;
+		float rotY = 0.0f;
+
+		// Gestion de la manette
+		if (_gamepad) {
+			float rightStickX = _gamepad->getRightStickX();
+			float rightStickY = _gamepad->getRightStickY();
+
+			rotX = rightStickX * gamepadSensitivity;
+			rotY = rightStickY * gamepadSensitivity;
+		}
+
+		// Gestion Souris
+		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -138,17 +151,13 @@ void Camera::Inputs(GLFWwindow* window)
 			}
 
 			// Récupére les coordoonées de la souris
-			double mouseX;
-			double mouseY;
+			double mouseX, mouseY;
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
 			// Normalise et décalle les coord. de la souris pour qu'elles soient au milieu de l'écran entre -1 et 1 & détermine la rotation à partie de ça
-			float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-			float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+			rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+			rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 
-			// Ajuste les angles de rotation
-			yaw += rotY;
-			pitch += rotX;
 
 			// Limite le pitch pour éviter les inversions (barrel-roll)
 			if (pitch > 45.0f) pitch = 45.0f;	// vers sol
@@ -163,6 +172,16 @@ void Camera::Inputs(GLFWwindow* window)
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			// Réinit. le booléen pour que la caméra ne saute pas au prochain clic
 			firstClick = true;
+		}
+
+		// appliquer les rotations si elles s'existent
+		if (rotX != 0.0f || rotY != 0.0f)
+		{
+			yaw += rotX;
+			pitch += rotY;
+
+			if (pitch > 45.0f) pitch = 45.0f;
+			if (pitch < -10.0f) pitch = -10.0f;
 		}
 	}
 }

@@ -11,6 +11,7 @@
 #include <glm/gtx/vector_angle.hpp>
 
 #include "Shader.h"
+#include"Gamepad.h"
 
 enum CameraMode {
 	NO_CLIP,
@@ -30,6 +31,7 @@ public:
 
 	// Gestion des modes de caméra
 	void setMode(CameraMode mode) { this->mode = mode; }
+	void setGamepad(std::shared_ptr<Gamepad> gamepad) { _gamepad = gamepad; }
 	CameraMode getMode() const { return mode; }
 
 	// Calculer la position et la direction de la caméra en fonction de celles d'une cible à atteindre
@@ -47,7 +49,7 @@ private:
 	// Ajuster la vitesse de la caméra et la sensibilité quand on regarde autour
 	float speed = 0.1f;
 	float sensitivity = 50.0f;
-
+	float gamepadSensitivity = 0.09f;
 	// flags : évite que la caméra ne saute au 1er clic gauche & sait si on vient de passer à la 3ème pers.
 	bool firstClick = true;
 	bool justSwitchedToThirdPerson = true;
@@ -59,6 +61,7 @@ private:
 	float distanceToTarget = 15.0f;
 	float yaw;   // Rotation horizontale
 	float pitch; // Rotation verticale
+	std::shared_ptr<Gamepad> _gamepad = nullptr;
 };
 
 #endif // CAMERA_H
