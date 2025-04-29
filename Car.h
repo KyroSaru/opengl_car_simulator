@@ -14,6 +14,7 @@ public:
 	Car(const std::string& modelPath);
 
 	// Getters/Setters
+	int getId() const { return id; }
 	glm::vec3 getPosition() const;
 	glm::vec3 getDirection() const;
 	void setPosition(const glm::vec3& position);

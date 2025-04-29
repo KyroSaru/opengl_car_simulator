@@ -157,8 +157,8 @@ void Camera::Inputs(GLFWwindow* window)
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
 			// Normalise et décalle les coord. de la souris pour qu'elles soient au milieu de l'écran entre -1 et 1 & détermine la rotation à partie de ça
-			rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-			rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+			rotX = sensitivity * (float)(mouseX - (width / 2)) / width;
+			rotY = sensitivity * (float)(mouseY - (height / 2)) / height;
 
 			// Définit le curseur de la souris au milieu de l'écran pour éviter qu'il ne sorte de la fenêtre
 			glfwSetCursorPos(window, (width / 2), (height / 2));
