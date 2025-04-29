@@ -11,7 +11,7 @@ World::World(int windowWidth, int windowHeight, GLFWwindow* win)
 void World::load()
 {
     addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(0.0f, 2.0f, 0.0f));
-    addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(5.0f, 2.0f, 0.0f));
+    // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(5.0f, 2.0f, 0.0f));
     // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(10.0f, 2.0f, 0.0f));
     // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(15.0f, 2.0f, 0.0f));
 }
@@ -76,7 +76,7 @@ void World::update(float deltaTime)
         }
 
         voiture.getCamera()->Inputs(window);
-        voiture.getCamera()->update(voiture.getPosition(), voiture.getDirection(), terrain);
+        voiture.getCamera()->update(voiture.getBodyPosition(), voiture.getDirection(), terrain);
     }
 }
 
