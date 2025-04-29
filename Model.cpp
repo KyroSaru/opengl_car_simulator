@@ -3,7 +3,8 @@
 Model::Model(const std::string& path)
 {
 	loadModel(path);
-	calculateBoundingBox(); // Calculer la bounding box après avoir chargé le modèle
+	// Calcule la bounding box après avoir chargé le modèle
+	calculateBoundingBox(); 
 }
 
 Model::Model(const std::string& path, const std::string& nodeName)
@@ -11,6 +12,7 @@ Model::Model(const std::string& path, const std::string& nodeName)
 	loadSpecificNode(path, nodeName);
 	calculateBoundingBox();
 }
+
 
 void Model::Draw(Shader& shader)
 {
@@ -66,7 +68,7 @@ void Model::loadSpecificNode(const std::string& path, const std::string& nodeNam
 
 	directory = path.substr(0, path.find_last_of('/'));
 
-	// Chercher le noeud voulu
+	// Cherche le noeud voulu
 	aiNode* targetNode = findNodeByName(scene->mRootNode, nodeName);
 	if (targetNode)
 		processNode(targetNode, scene);

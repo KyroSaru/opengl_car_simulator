@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <glm/gtx/string_cast.hpp>
 
 Camera::Camera(int width, int height, glm::vec3 position)
 {
@@ -125,8 +126,21 @@ void Camera::Inputs(GLFWwindow* window)
 
 	// [3RD PERSON]
 	else 
-	{   // Gestion Souris
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{   
+		float rotX = 0.0f;
+		float rotY = 0.0f;
+
+		// Gestion Manette
+		if (_gamepad) {
+			float rightStickX = _gamepad->getRightStickX();
+			float rightStickY = _gamepad->getRightStickY();
+
+			rotX = rightStickX * gamepadSensitivity;
+			rotY = rightStickY * gamepadSensitivity;
+		}
+
+		// Gestion Souris
+		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -143,16 +157,8 @@ void Camera::Inputs(GLFWwindow* window)
 			glfwGetCursorPos(window, &mouseX, &mouseY);
 
 			// Normalise et décalle les coord. de la souris pour qu'elles soient au milieu de l'écran entre -1 et 1 & détermine la rotation à partie de ça
-			float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-			float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
-
-			// Ajuste les angles de rotation
-			yaw += rotY;
-			pitch += rotX;
-
-			// Limite le pitch pour éviter les inversions (barrel-roll)
-			if (pitch > 45.0f) pitch = 45.0f;	// vers sol
-			if (pitch < -10.0f) pitch = -10.0f; // vers ciel
+			rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+			rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 
 			// Définit le curseur de la souris au milieu de l'écran pour éviter qu'il ne sorte de la fenêtre
 			glfwSetCursorPos(window, (width / 2), (height / 2));
@@ -164,10 +170,21 @@ void Camera::Inputs(GLFWwindow* window)
 			// Réinit. le booléen pour que la caméra ne saute pas au prochain clic
 			firstClick = true;
 		}
+
+		// Applique/ajuste les rotations (yaw/pitch)
+		if (rotX != 0.0f || rotY != 0.0f)
+		{
+			yaw += rotX;
+			pitch += rotY;
+
+			// Limite le pitch pour éviter les inversions (barrel-roll)
+			if (pitch > 45.0f) pitch = 45.0f;// vers sol
+			if (pitch < -10.0f) pitch = -10.0f;// vers ciel
+		}
 	}
 }
 
-void Camera::followTarget(const glm::vec3& targetPosition, const glm::vec3& targetDirection)
+void Camera::followTarget(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain)
 {
 	if (mode == THIRD_PERSON)
 	{
@@ -176,7 +193,7 @@ void Camera::followTarget(const glm::vec3& targetPosition, const glm::vec3& targ
 		{
 			// Positionner la caméra directement derrière la voiture
 			glm::vec3 offset = -glm::normalize(targetDirection) * distanceToTarget;
-			offset.y += 2.0f; // un peu plus au dessus
+			offset.y = 2.0f; // Ajuste la hauteur en fonction de la voiture
 			Position = targetPosition + offset;
 
 			// Orienter la caméra vers la voiture (avec notre offset en y va donc regarder légèrement vers le bas)
@@ -193,9 +210,9 @@ void Camera::followTarget(const glm::vec3& targetPosition, const glm::vec3& targ
 		{
 			// Calcule position cam par rapport aux angles de rotation (conversion coord. spheriques en cartesienne)
 			glm::vec3 offset;
-			offset.x = distanceToTarget * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-			offset.y = distanceToTarget * sin(glm::radians(pitch));
-			offset.z = distanceToTarget * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+			offset.x = distanceToTarget * (cos(glm::radians(pitch))) * cos(glm::radians(yaw));
+			offset.y = distanceToTarget * sin(glm::radians(pitch)); // Ajuste la hauteur en fonction du terrain;
+			offset.z = distanceToTarget * (cos(glm::radians(pitch))) * sin(glm::radians(yaw));
 
 			// Positionne la caméra autour de la voiture
 			Position = targetPosition + offset;
@@ -206,9 +223,9 @@ void Camera::followTarget(const glm::vec3& targetPosition, const glm::vec3& targ
 	}
 }
 
-void Camera::update(const glm::vec3& targetPosition, const glm::vec3& targetDirection)
+void Camera::update(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain)
 {
 	// Si la caméra est en mode troisième personne, suit la voiture
-	if (mode == THIRD_PERSON) followTarget(targetPosition, targetDirection);
+	if (mode == THIRD_PERSON) followTarget(targetPosition, targetDirection, terrain);
 }
 

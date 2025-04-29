@@ -1,6 +1,7 @@
 #include "Model.h"
 #include "Frustum.h"
 #include "Car.h"
+#include "JoystickManager.h"
 
 #include <chrono>
 
@@ -44,6 +45,7 @@ int main()
 	// Créer un Shader Program avec les Vertex Shader et Fragment Shader spécifiés
 	Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
 	Shader wireframeShader("shaders/wireframe.vert", "shaders/wireframe.frag");
+	Shader terrainShader("shaders/terrain.vert", "shaders/terrain.frag");
 	
 	// Activer le mode de profondeur (Z-buffer/Depth Buffer)
 	glEnable(GL_DEPTH_TEST);
@@ -54,14 +56,26 @@ int main()
 	glFrontFace(GL_CCW);
 
 	// Créer une caméra
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+	auto camera = std::make_shared<Camera>(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
 
 	// Charger les modèles
 	Car voiture("models/voiture_gltf/voiture.gltf");
 	Model carte("models/map/scene.gltf");
 
+	Terrain terrain("models/terrain/heightmap.png", 25.0f);
+
 	// Vecteur de modèles pour le frustum culling
-	std::vector<Model*> models = { &carte };
+	std::vector<Model*> culledModels = { &carte };
+
+	// [GESTION DES CONTROLLEURS]
+	std::shared_ptr<Keyboard> keyboard = std::make_shared<Keyboard>();
+	// voiture.setKeyboard(keyboard);
+
+	auto availableGamepads = JoystickManager::findAllAvailableGamepads();
+	auto gamepad = availableGamepads.back();
+	voiture.setGamepad(gamepad);
+	voiture.setCamera(camera);
+	voiture.getCamera()->setGamepad(gamepad);
 
 	// ------------------------------------------
 
@@ -82,9 +96,9 @@ int main()
 		lastFrame = currentFrame;
 
 		// Gestion de la Physique en 3eme pers.
-		if (camera.getMode() == THIRD_PERSON)
+		if (voiture.getCamera()->getMode() == THIRD_PERSON)
 		{
-			voiture.updatePhysics(deltaTime, window);
+			voiture.updatePhysics(deltaTime, window, terrain);
 			std::cout << "Car pos: [x:" << voiture.getPosition().x << ", y:" << voiture.getPosition().y << ", z:" << voiture.getPosition().z << "]" << std::endl;
 		}
 
@@ -93,19 +107,18 @@ int main()
 		// Nettoie le back buffer et le depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
 		// ----------------------------------------
 
 		// [CAMERA / FRUSTUM] 
 		// Gére les entrées de la caméra
-		camera.Inputs(window);
+		voiture.getCamera()->Inputs(window);
 		// Met à jour la caméra en fonction de son mode et de la voiture
-		camera.update(voiture.getPosition(), voiture.getDirection());
+		voiture.getCamera()->update(voiture.getBodyPosition(), voiture.getDirection(), terrain);
 
 		// Transformations des matrices vue/projection
 		shaderProgram.Activate();
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-		glm::mat4 view = camera.getViewMatrix();
+		glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 200.0f);
+		glm::mat4 view = voiture.getCamera()->getViewMatrix();
 		shaderProgram.setMat4("projection", projection);
 		shaderProgram.setMat4("view", view);
 
@@ -120,16 +133,17 @@ int main()
 		if (voiture.isVisible(frustum))
 		{
 			voiture.Draw(shaderProgram);
-			voiture.DrawWireframes(wireframeShader, view, projection);
+			// voiture.DrawWireframes(wireframeShader, view, projection);
 		}
 
+		/*
 		// [MODELE DE DEBUG]
 		// Position fixe pour que le modèle de référence ne se déplace pas avec la voiture
 		shaderProgram.Activate();
 		glm::mat4 fixModelMatrix = glm::mat4(1.0f);
 		fixModelMatrix = glm::translate(fixModelMatrix, glm::vec3(0.0f, -1.0f, -15.0f));
 		fixModelMatrix = glm::rotate(fixModelMatrix, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		for (const auto& model : models) {
+		for (const auto& model : culledModels) {
 			// Nouvelle boundingbox du modèle après transformation par model matrix
 			BoundingBox transformedBox = model->boundingBox.getTransformed(fixModelMatrix);
 
@@ -141,6 +155,18 @@ int main()
 				model->Draw(shaderProgram);
 			}
 		}
+		*/
+
+		// Gestion du terrain ici pour le moment
+		terrainShader.Activate();
+		terrainShader.setMat4("view", view);
+		terrainShader.setMat4("projection", projection);
+		glm::mat4 terrainModel = glm::mat4(1.0f);
+		terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, -10.0f, 0.0f));
+		terrain.setModelMatrix(terrainModel);
+		
+		terrainShader.setVec3("viewPos", voiture.getCamera()->getPosition()); // Position de la caméra pour shader
+		terrain.Draw(terrainShader);
 
 		// ----------------------------------------
 

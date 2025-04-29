@@ -11,6 +11,8 @@
 #include <glm/gtx/vector_angle.hpp>
 
 #include "Shader.h"
+#include "Terrain.h"
+#include "Gamepad.h"
 
 enum CameraMode {
 	NO_CLIP,
@@ -28,15 +30,19 @@ public:
 	// Gére les entrées de la caméra
 	void Inputs(GLFWwindow* window);
 
+	void setGamepad(std::shared_ptr<Gamepad> gamepad) { _gamepad = gamepad; }
+
+	glm::vec3 getPosition() const { return Position; }
+
 	// Gestion des modes de caméra
 	void setMode(CameraMode mode) { this->mode = mode; }
 	CameraMode getMode() const { return mode; }
 
 	// Calculer la position et la direction de la caméra en fonction de celles d'une cible à atteindre
-	void followTarget(const glm::vec3& targetPosition, const glm::vec3& targetDirection);
+	void followTarget(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain);
 
 	// Met à jour la caméra en fonction de son mode et de la position et direction ciblé de la voiture
-	void update(const glm::vec3& targetPosition, const glm::vec3& targetDirection);
+	void update(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain);
 private:
 	// Stocke les 3 vecteurs principaux de la caméra
 	glm::vec3 Position;
@@ -47,6 +53,7 @@ private:
 	// Ajuster la vitesse de la caméra et la sensibilité quand on regarde autour
 	float speed = 0.1f;
 	float sensitivity = 50.0f;
+	float gamepadSensitivity = 0.5f;
 
 	// flags : évite que la caméra ne saute au 1er clic gauche & sait si on vient de passer à la 3ème pers.
 	bool firstClick = true;
@@ -57,8 +64,11 @@ private:
 
 	// Variables pour la caméra en 3ème personne
 	float distanceToTarget = 15.0f;
-	float yaw;   // Rotation horizontale
-	float pitch; // Rotation verticale
+	float yaw = 0.0f;   // Rotation horizontale
+	float pitch = 0.0f; // Rotation verticale
+
+	// Gamepad
+	std::shared_ptr<Gamepad> _gamepad = nullptr;
 };
 
 #endif // CAMERA_H

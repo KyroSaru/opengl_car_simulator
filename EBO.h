@@ -1,5 +1,5 @@
 #ifndef EBO_H
-#define EBO_h
+#define EBO_H
 
 #include <glad/glad.h>
 #include <vector>

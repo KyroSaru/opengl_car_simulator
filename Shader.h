@@ -26,6 +26,8 @@ public:
 
 	// ------------------------------------------------------------------------
 
+	// Envoie un float au shader
+	void setFloat(const std::string& uniform, float value) const;
 	// Envoie un vecteur 3D au shader
 	void setVec3(const std::string& uniform, const glm::vec3& vec) const;
 	// Envoie une matrice 4x4 au shader

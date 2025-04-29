@@ -77,6 +77,12 @@ void Shader::Delete()
 
 // ------------------------------------------------------
 
+// Envoie un float au shader
+void Shader::setFloat(const std::string& uniform, float value) const
+{
+	glUniform1f(glGetUniformLocation(ID, uniform.c_str()), value);
+}
+
 // Envoie un vecteur 3D au shader
 void Shader::setVec3(const std::string& uniform, const glm::vec3& vec) const
 {

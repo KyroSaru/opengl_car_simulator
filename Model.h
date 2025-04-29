@@ -26,6 +26,10 @@ public:
 	Model() = default; // pour déclarer sans init dans Car.h
 	Model(const std::string& path);
 	Model(const std::string& path, const std::string& nodeName);
+
+	// Getter des meshes
+	const std::vector<Mesh>& getMeshes() const { return meshes; }
+
 	// Parcours tous les meshs et les dessine
 	void Draw(Shader& shader);
 
