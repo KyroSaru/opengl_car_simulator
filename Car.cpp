@@ -141,7 +141,7 @@ void Car::Draw(Shader& shader)
 {
     // Transfos du corps
     glm::mat4 body_model = getBodyModelMatrix();
-    std::cout << "Car Model Matrix: " << glm::to_string(body_model) << std::endl;
+    // std::cout << "Car Model Matrix: " << glm::to_string(body_model) << std::endl;
     shader.setMat4("model", body_model);
     body.Draw(shader);
 
@@ -173,7 +173,7 @@ void Car::Draw(Shader& shader)
         // Retour au centre original
         wheel_model = glm::translate(wheel_model, wheelOffsets[i]);
 
-        std::cout << "Wheel " << i << " Model Matrix: " << glm::to_string(wheel_model) << std::endl;
+        // std::cout << "Wheel " << i << " Model Matrix: " << glm::to_string(wheel_model) << std::endl;
         shader.setMat4("model", wheel_model);
         wheels[i].Draw(shader);
     }

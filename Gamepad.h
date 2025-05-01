@@ -18,6 +18,7 @@ public:
 	// On va utiliser le stick droit pour gérer la caméra
 	float getRightStickX() const;
 	float getRightStickY() const;
+
 	// assigner/déassigner le gamepad (pour l'unicité)
 	void assign() { assigned = true; }
 	void unassign() { assigned = false; }

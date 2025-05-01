@@ -1,19 +1,17 @@
 #include "World.h"
 
-
 World::World(int windowWidth, int windowHeight, GLFWwindow* win)
     : width(windowWidth), height(windowHeight), window(win),
     keyboard(std::make_shared<Keyboard>()), terrain("models/terrain/heightmap.png", 25.0f)
 {
-
 }
 
 void World::load()
 {
-    addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(0.0f, 2.0f, 0.0f));
-    // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(5.0f, 2.0f, 0.0f));
-    // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(10.0f, 2.0f, 0.0f));
-    // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(15.0f, 2.0f, 0.0f));
+    addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(-2.5f, 2.0f, 0.0f));
+    addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(2.5f, 2.0f, 0.0f));
+    //addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(-5.0f, 2.0f, 0.0f));
+    //addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(5.0f, 2.0f, 0.0f));
 }
 
 void World::addPlayer(const std::string& modelPath, const glm::vec3& startPosition) {
@@ -43,7 +41,14 @@ void World::update(float deltaTime)
     for (auto& voiture : voitures) {
         // la voiture n'a ni clavier ni gamepad
         if (!voiture.hasGamepad() && !voiture.hasKeyboard()) { // remplacer pas isAssigned ?
-            if (!availableGamepads.empty()) {
+            if (!keyboard->isAssigned())
+            {
+                keyboard->assign();
+                voiture.setKeyboard(keyboard);
+                voiture.getCamera()->setGamepad(nullptr); // ajouter une gestion de la souris dynamique
+                std::cout << "Joueur " << voiture.getId() << " utilise le clavier.\n";
+            }
+            else if (!availableGamepads.empty()) {
                 auto gamepad = availableGamepads.back();
                 availableGamepads.pop_back();
 
@@ -52,13 +57,7 @@ void World::update(float deltaTime)
                 voiture.getCamera()->setGamepad(gamepad);
                 std::cout << "Joueur n°" << voiture.getId() << " ; Manette n°" << gamepad->jid() << " connectée : " << glfwGetJoystickName(gamepad->jid()) << std::endl;
             }
-            else if (!keyboard->isAssigned())
-            {
-                keyboard->assign();
-                voiture.setKeyboard(keyboard);
-                voiture.getCamera()->setGamepad(nullptr); // ajouter une gestion de la souris dynamique
-                std::cout << "Joueur " << voiture.getId() << " utilise le clavier.\n";
-            }
+             
         }
         // La voiture a eu un gamepad mais celui-ci a été deconnecté
         else if (voiture.hasGamepad() && !JoystickManager::isConnected(voiture.getGamepad()->jid())) {
@@ -94,7 +93,7 @@ void World::calculateViewport(int playerIndex, int& x, int& y, int& w, int& h) {
         // split vertical
         w = width / 2;
         h = height;
-        x = (playerIndex == 0) ? w : 0;
+        x = (playerIndex == 0) ? 0 : w;
         y = 0;
         break;
     case 3:
@@ -130,7 +129,7 @@ void World::calculateViewport(int playerIndex, int& x, int& y, int& w, int& h) {
         w = width / 2;
         h = height / 2;
         x = (playerIndex % 2) * w;
-        y = (playerIndex / 2) * h;
+        y = (1 - (playerIndex / 2)) * h; // inverse l'ordre vertical
         break;
     }
 }

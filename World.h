@@ -3,11 +3,9 @@
 #include <vector>
 #include <memory>
 
-#include "Camera.h"
 #include "Car.h"
 #include "Frustum.h"
 #include "JoystickManager.h"
-#include "Keyboard.h"
 #include "Terrain.h"
 
 class World {
@@ -25,15 +23,13 @@ private:
     int width, height;
     GLFWwindow* window;
 
-    std::shared_ptr<Keyboard> keyboard;
-
     Terrain terrain;
     std::vector<Car> voitures;
 
     Frustum frustum;
 
-    float lastFrame = 0.0f;
-    float gravity = 9.807f;
+    // On a pas plus d'un clavier
+    std::shared_ptr<Keyboard> keyboard;
 
     int nbJoueurMax = 4;
 };

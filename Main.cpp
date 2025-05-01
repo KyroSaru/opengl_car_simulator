@@ -8,7 +8,7 @@
 #include <chrono>
 
 const unsigned int width = 1600;
-const unsigned int height = 1200;
+const unsigned int height = 800;
 
 float calculateFPS();
 
