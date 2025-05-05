@@ -12,20 +12,16 @@
 class Terrain
 {
 public:
-    // Constructeur pour créer un terrain
+    // Constructeur de terrain
     Terrain(const std::string& heightMapPath, float maxHeight);
 
     // Définit la matrice modèle du terrain
     void setModelMatrix(const glm::mat4& modelMatrix) { terrainModelMatrix = modelMatrix; }
-
-    // Calcule les normales du terrain
-    void calculateNormals();
+    // Obtient la hauteur à une position donnée sur le plan (x, z) pour les roues de Car::updatePhysics
+    float getHeightAt(float worldX, float worldZ) const;
 
     // Dessine le terrain
     void Draw(Shader& shader);
-
-    // Obtient la hauteur à une position donnée sur le plan (x, z) pour les roues de Car::updatePhysics
-    float getHeightAt(float worldX, float worldZ) const;
 
 private:
 	// VAO (VBO/EBO) pour gérer les buffers OpenGL et nombre de vertices
@@ -43,8 +39,13 @@ private:
     // Matrice de Model du terrain
     glm::mat4 terrainModelMatrix = glm::mat4(1.0f);
 
+    // -------------------------------
+
 	// Génère le terrain à partir d'une height map
     void generateFromHeightMap(const std::string& heightMapPath, float maxHeight);
+
+    // Calcule les normales du terrain
+    void calculateNormals();
 
     // Utilise les coord. barycentriques pour interpoler et retourner la hauteur y à une position donnée dans un triangle
     float barryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos) const;

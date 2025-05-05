@@ -43,9 +43,15 @@ bool BoundingBox::intersects(const glm::vec4& plane) const
 
     return true; // Intersecte ou est à l'intérieur
 }
+// Vérifie si la bounding box intersecte une autre bounding box
+bool BoundingBox::intersects(const BoundingBox& other) const {
+    return (min.x <= other.max.x && max.x >= other.min.x) &&
+        (min.y <= other.max.y && max.y >= other.min.y) &&
+        (min.z <= other.max.z && max.z >= other.min.z);
+}
 
 // Applique les transfos de la model matrix à la Bounding Box
-BoundingBox BoundingBox::getTransformed(const glm::mat4& modelMatrix) const 
+BoundingBox BoundingBox::getTransformed(const glm::mat4& modelMatrix) const
 {
     // Coins de la Bounding Box
     glm::vec3 corners[8] = {
@@ -60,6 +66,11 @@ BoundingBox BoundingBox::getTransformed(const glm::mat4& modelMatrix) const
     };
 
     BoundingBox transformedBox;
+    // Initialise avec le premier coin transformé
+    glm::vec3 firstTransformed = glm::vec3(modelMatrix * glm::vec4(corners[0], 1.0f));
+    transformedBox.min = firstTransformed;
+    transformedBox.max = firstTransformed;
+
     // Transforme chaque coin de la Box avec la model matrix et la met à jour avec le nouveau coin obtenu
     for (int i = 0; i < 8; ++i) {
         glm::vec4 transformed = modelMatrix * glm::vec4(corners[i], 1.0f);
@@ -68,7 +79,6 @@ BoundingBox BoundingBox::getTransformed(const glm::mat4& modelMatrix) const
 
     return transformedBox;
 }
-
 
 
 // Retourne le sommet le plus proche d'un plan

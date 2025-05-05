@@ -96,8 +96,6 @@ void Terrain::Draw(Shader& shader)
     // Envoie les uniforms du matériau (composante ambiante, diffuse, spéculaire et brillance)
     shader.setVec3("ambientColor", glm::vec3(0.8f, 0.5f, 0.3f));
     shader.setVec3("diffuseColor", glm::vec3(0.7f, 0.5f, 0.4f));
-    shader.setVec3("specularColor", glm::vec3(0.9f, 0.9f, 0.9f));
-    shader.setFloat("shininess", 32.0f);
 
     shader.setMat4("model", terrainModelMatrix);
 
@@ -120,7 +118,7 @@ void Terrain::calculateNormals()
         glm::vec3 v1 = vertices[index1].position;
         glm::vec3 v2 = vertices[index2].position;
 
-		// Calcule la normale du triangle (produit vectoriel normalisé)
+        // Calcule la normale du triangle (produit vectoriel normalisé)
         glm::vec3 edge1 = v1 - v0;
         glm::vec3 edge2 = v2 - v0;
         glm::vec3 triangleNormal = glm::normalize(glm::cross(edge1, edge2));
@@ -131,7 +129,6 @@ void Terrain::calculateNormals()
         vertices[index2].normal += triangleNormal;
     }
 }
-
 
 
 float Terrain::getHeightAt(float worldX, float worldZ) const {
@@ -186,8 +183,6 @@ float Terrain::getHeightAt(float worldX, float worldZ) const {
     glm::vec4 globalHeight = terrainModelMatrix * glm::vec4(0.0f, height, 0.0f, 1.0f);
     return globalHeight.y;
 }
-
-
 
 float Terrain::barryCentric(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec2& pos) const {
     float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);

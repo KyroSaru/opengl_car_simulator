@@ -329,4 +329,26 @@ void Car::updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terr
     }
 }
 
+bool Car::checkCollision(const Car& other) const {
+    // Récupérer les bounding boxes transformées
+    auto thisBodyBox = body.boundingBox.getTransformed(getBodyModelMatrix());
+    auto otherBodyBox = other.body.boundingBox.getTransformed(other.getBodyModelMatrix());
 
+    // Vérifier la collision entre les corps
+    if (thisBodyBox.intersects(otherBodyBox)) {
+        return true;
+    }
+
+    // Vérifier la collision entre les roues
+    for (int i = 0; i < 4; ++i) {
+        auto thisWheelBox = wheels[i].boundingBox.getTransformed(getCarModelMatrix());
+        for (int j = 0; j < 4; ++j) {
+            auto otherWheelBox = other.wheels[j].boundingBox.getTransformed(other.getCarModelMatrix());
+            if (thisWheelBox.intersects(otherWheelBox)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

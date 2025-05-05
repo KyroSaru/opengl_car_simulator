@@ -23,6 +23,8 @@ public:
 
     // Vérifie si la bounding box intersecte un plan
     bool intersects(const glm::vec4& plane) const;
+    // Vérifie si la bounding box intersecte une autre bounding box
+    bool intersects(const BoundingBox& other) const;
 
     // Applique les transfos de la model matrix à la Bounding Box
     BoundingBox getTransformed(const glm::mat4& modelMatrix) const;

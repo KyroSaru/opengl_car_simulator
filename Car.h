@@ -57,7 +57,8 @@ public:
 
 	// Gére la physique de la voiture avec des contrôles
 	void updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terrain);
-
+	// Gestion des collisions avec les autres voitures
+	bool checkCollision(const Car& other) const;
 private:
 	// Gestion de l'ID du véhicule
 	int id;

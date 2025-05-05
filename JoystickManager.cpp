@@ -4,17 +4,15 @@ std::unordered_map<int, std::shared_ptr<Gamepad>> JoystickManager::gamepads;
 
 bool JoystickManager::isConnected(int jid) {
 	if (glfwJoystickIsGamepad(jid)) {
-		//std::cout << "Le Joystick n°" << jid + 1 << "est connectée !\n";
 		return true;
 	}
-	//std::cout << "La Joystick n°" << jid + 1 << "n'est pas connectée !\n";
 	return false;
 }
 
 void JoystickManager::printAllJoysticks()  {
 	for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; ++jid) {
 		if(glfwJoystickPresent(jid))
-			std::cout << "Le Joystick n°" << jid + 1 << "est connectée ! Nom du Joystick : " << glfwGetJoystickName(jid) << std::endl;
+			std::cout << "Joystick n°" << jid + 1 << " is connected ! Joystick name: " << glfwGetJoystickName(jid) << std::endl;
 	}
 }
 

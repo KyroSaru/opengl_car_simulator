@@ -223,7 +223,7 @@ void Camera::followTarget(const glm::vec3& targetPosition, const glm::vec3& targ
 	}
 }
 
-void Camera::update(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain)
+void Camera::Update(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain)
 {
 	// Si la caméra est en mode troisième personne, suit la voiture
 	if (mode == THIRD_PERSON) followTarget(targetPosition, targetDirection, terrain);

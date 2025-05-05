@@ -58,7 +58,7 @@ int main()
 	glFrontFace(GL_CCW);
 
 	World world(width, height, window);
-	world.load();
+	world.loadModels();
 
 	// Init la dernière frame avant le rendu
 	float lastFrame = static_cast<float>(glfwGetTime());
@@ -73,8 +73,8 @@ int main()
 		std::string windowTitle = "Simulateur Automobile - FPS: " + std::to_string(static_cast<int>(calculateFPS()));
 		glfwSetWindowTitle(window, windowTitle.c_str());
 
-		world.update(deltaTime);
-		world.draw(shaderProgram, wireframeShader, terrainShader);
+		world.updateScene(deltaTime);
+		world.renderScene(shaderProgram, wireframeShader, terrainShader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

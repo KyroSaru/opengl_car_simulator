@@ -6,47 +6,50 @@ World::World(int windowWidth, int windowHeight, GLFWwindow* win)
 {
 }
 
-void World::load()
+
+void World::loadModels()
 {
     addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(-2.5f, 2.0f, 0.0f));
     addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(2.5f, 2.0f, 0.0f));
-    //addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(-5.0f, 2.0f, 0.0f));
-    //addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(5.0f, 2.0f, 0.0f));
+    // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(-7.5f, 2.0f, 0.0f));
+    // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(7.5f, 2.0f, 0.0f));
 }
 
 void World::addPlayer(const std::string& modelPath, const glm::vec3& startPosition) {
 
-    if(voitures.size() >= nbJoueurMax)
+    if (voitures.size() >= maxPlayers)
     {
-        std::cout << "Nombre maximum de joueurs atteint [" << nbJoueurMax << "]\n";
+		std::cout << "Maximum number of players reached! [" << maxPlayers << "]\n" << std::endl;
         return;
     }
 
+	// Création de la voiture & positionnement
     Car car(modelPath);
     car.setPosition(startPosition);
 
-    // une voiture = une camera
+	// Création de la caméra 3rd Person pour la voiture
     auto cam = std::make_shared<Camera>(width, height, startPosition);
     cam->setMode(THIRD_PERSON);
-    
     car.setCamera(cam);
+
+	// Ajout de la voiture à la liste
     voitures.push_back(car);
 }
 
-void World::update(float deltaTime)
+void World::updateScene(float deltaTime)
 {
-    // On cherche tous les gamepads disponibles
+    // Cherche tous les gamepads disponibles
     auto availableGamepads = JoystickManager::findAllAvailableGamepads();
 
     for (auto& voiture : voitures) {
-        // la voiture n'a ni clavier ni gamepad
-        if (!voiture.hasGamepad() && !voiture.hasKeyboard()) { // remplacer pas isAssigned ?
+		// Assigne un gamepad ou un clavier à la voiture (priorité au clavier puis les manettes)
+        if (!voiture.hasGamepad() && !voiture.hasKeyboard()) {
             if (!keyboard->isAssigned())
             {
                 keyboard->assign();
                 voiture.setKeyboard(keyboard);
-                voiture.getCamera()->setGamepad(nullptr); // ajouter une gestion de la souris dynamique
-                std::cout << "Joueur " << voiture.getId() << " utilise le clavier.\n";
+                voiture.getCamera()->setGamepad(nullptr);
+				std::cout << "Player " << voiture.getId() << " uses the keyboard.\n";
             }
             else if (!availableGamepads.empty()) {
                 auto gamepad = availableGamepads.back();
@@ -55,153 +58,165 @@ void World::update(float deltaTime)
                 gamepad->assign();
                 voiture.setGamepad(gamepad);
                 voiture.getCamera()->setGamepad(gamepad);
-                std::cout << "Joueur n°" << voiture.getId() << " ; Manette n°" << gamepad->jid() << " connectée : " << glfwGetJoystickName(gamepad->jid()) << std::endl;
+				std::cout << "Player " << voiture.getId() << " uses gamepad " << gamepad->jid() << " : " << glfwGetJoystickName(gamepad->jid()) << std::endl;
             }
              
         }
-        // La voiture a eu un gamepad mais celui-ci a été deconnecté
+        // Gamepad mais deconnecté
         else if (voiture.hasGamepad() && !JoystickManager::isConnected(voiture.getGamepad()->jid())) {
             auto currentGamepad = voiture.getGamepad();
             currentGamepad->unassign();
             voiture.setGamepad(nullptr);
             voiture.getCamera()->setGamepad(nullptr);
-            std::cout << "Manette déconnectée ! Retour clavier.\n";
+            std::cout << "Disconnected gamepad! Switching to keyboard.\n";
         }
-    }
 
-    for (auto& voiture : voitures) {
+        // Physique pris en compte qu'en 3rd Person
         if (voiture.getCamera()->getMode() == THIRD_PERSON) {
             voiture.updatePhysics(deltaTime, window, terrain);
         }
 
+        // Gestion des touches et màj de la caméra
+        voiture.getCamera()->Update(voiture.getBodyPosition(), voiture.getDirection(), terrain);
         voiture.getCamera()->Inputs(window);
-        voiture.getCamera()->update(voiture.getBodyPosition(), voiture.getDirection(), terrain);
+    }
+
+    // Vérif. des collisions
+    for (size_t i = 0; i < voitures.size(); ++i) {
+        for (size_t j = i + 1; j < voitures.size(); ++j) {
+            if (voitures[i].checkCollision(voitures[j])) {
+				std::cout << "Collision detected between cars " << voitures[i].getId() << " and " << voitures[j].getId() << "!" << std::endl;
+            }
+        }
     }
 }
 
 void World::calculateViewport(int playerIndex, int& x, int& y, int& w, int& h) {
     switch (voitures.size())
     {
-    case 1:
-        // plein écran
-        x = 0;
-        y = 0;
-        w = width;
-        h = height;
-        break;
-    case 2:
-        // split vertical
-        w = width / 2;
-        h = height;
-        x = (playerIndex == 0) ? 0 : w;
-        y = 0;
-        break;
-    case 3:
-        // split vertical
-        // puis split horizontal de la partie haute
-        if (playerIndex == 0)
-        {
-            // haut à gauche
-            w = width / 2;
-            h = height / 2;
-            x = 0;
-            y = height / 2;
-        }
-        else if (playerIndex == 1)
-        {
-            // haut à droite
-            w = width / 2;
-            h = height / 2;
-            x = width / 2;
-            y = height / 2;
-        }
-        else
-        {
-            // toute la moitié inférieure
-            w = width;
-            h = height / 2;
+        case 1:
+            // Plein écran
             x = 0;
             y = 0;
-        }
+            w = width;
+            h = height;
         break;
-    case 4:
-        // split horiontal et vertical 
-        w = width / 2;
-        h = height / 2;
-        x = (playerIndex % 2) * w;
-        y = (1 - (playerIndex / 2)) * h; // inverse l'ordre vertical
+        case 2:
+            // Split vertical
+            w = width / 2;
+            h = height;
+            x = (playerIndex == 0) ? 0 : w;
+            y = 0;
         break;
+        case 3:
+            // Split vertical (partie haute) & horizontal (partie basse)
+            if (playerIndex == 0)
+            {
+                // Haut Gauche
+                w = width / 2;
+                h = height / 2;
+                x = 0;
+                y = height / 2;
+            }
+            else if (playerIndex == 1)
+            {
+				// Haut Droite
+                w = width / 2;
+                h = height / 2;
+                x = width / 2;
+                y = height / 2;
+            }
+            else
+            {
+                // Bas
+                w = width;
+                h = height / 2;
+                x = 0;
+                y = 0;
+            }
+          break;
+          case 4:
+                // Split horizontal & vertical
+                w = width / 2;
+                h = height / 2;
+                x = (playerIndex % 2) * w;
+                y = (1 - (playerIndex / 2)) * h; // inverse l'ordre vertical (1er en haut à gauche)
+          break;
     }
 }
 
-void World::draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader)
+void World::renderScene(Shader& shader, Shader& wireframeShader, Shader& terrainShader)
 {
+    // Définit la couleur de fond de la fenêtre (RGBA)
     glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+    // Nettoie le back buffer et le depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    int n = static_cast<int>(voitures.size());
-
-    for (int i = 0; i < voitures.size(); ++i)
-    {
-        // division de l'écran en fonction du nombre de joueur
-        
-        int x, y, w, h;
-        calculateViewport(i, x, y, w, h);
-
-        // délimite la zone du joueur sur l'écran
-        glViewport(x, y, w, h);
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(x, y, w, h);
-
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)w / (float)h, 0.1f, 200.0f);
-        glm::mat4 view = voitures[i].getCamera()->getViewMatrix();
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
-
-        frustum.calculateFrustum(projection, view); // Frustum culling basé sur cette vue
-
-        // --- 2.3. Rendu des voitures (Shader normal) ---
-        shader.Activate();
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
-
-        for (auto& car : voitures)
-        {
-            if (car.isVisible(frustum))
-            {
-                car.Draw(shader);
-            }
+    // Vérifie si on passe en No Clip
+    for (auto& car : voitures) {
+        if (car.getCamera()->getMode() == NO_CLIP) {
+            noClip = car.getCamera();
+            break;
         }
-
-        // --- 2.4. Rendu des Wireframes (Shader wireframe) ---
-        
-        wireframeShader.Activate();
-        wireframeShader.setMat4("projection", projection);
-        wireframeShader.setMat4("view", view);
-
-        for (auto& car : voitures)
-        {
-            if (car.isVisible(frustum))
-            {
-                car.DrawWireframes(wireframeShader, view, projection);
-            }
-        }
-
-
-        // --- 2.5. Rendu du terrain ---
-        // Gestion du terrain ici pour le moment
-        terrainShader.Activate();
-        terrainShader.setMat4("view", view);
-        terrainShader.setMat4("projection", projection);
-        glm::mat4 terrainModel = glm::mat4(1.0f);
-        terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, -10.0f, 0.0f));
-        terrain.setModelMatrix(terrainModel);
-        for (auto& car : voitures)
-        {
-            terrainShader.setVec3("viewPos", car.getCamera()->getPosition()); // Position de la caméra pour shader
-            terrain.Draw(terrainShader);
-        }
-
-        glDisable(GL_SCISSOR_TEST);
+        noClip = nullptr;
     }
+
+    if (noClip) {
+        // [NO CLIP]
+        glViewport(0, 0, width, height);
+        Draw(shader, wireframeShader, terrainShader, width, height, noClip->getViewMatrix(), noClip->getPosition());
+    }
+    else {
+        // [3RD PERSON]
+        for (int i = 0; i < voitures.size(); ++i) {
+            int x, y, w, h;
+            calculateViewport(i, x, y, w, h);
+            glViewport(x, y, w, h);
+
+            glEnable(GL_SCISSOR_TEST);
+            glScissor(x, y, w, h);
+
+            auto camera = voitures[i].getCamera();
+            Draw(shader, wireframeShader, terrainShader, w, h, camera->getViewMatrix(), camera->getPosition());
+
+            glDisable(GL_SCISSOR_TEST);
+        }
+    }
+}
+
+void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader, int viewportWidth, int viewportHeight, const glm::mat4& view, const glm::vec3& viewPos)
+{
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)viewportWidth / (float)viewportHeight, 0.1f, 200.0f);
+	// Calcul du frustum à partir de la matrice de proj. et de vue
+    frustum.calculateFrustum(projection, view);
+
+    // Dessine les voitures
+    shader.Activate();
+    shader.setMat4("projection", projection);
+    shader.setMat4("view", view);
+    for (auto& car : voitures) {
+        if (car.isVisible(frustum)) {
+            car.Draw(shader);
+        }
+    }
+
+    // Dessine les wireframes des voitures
+    wireframeShader.Activate();
+    wireframeShader.setMat4("projection", projection);
+    wireframeShader.setMat4("view", view);
+    for (auto& car : voitures) {
+        if (car.isVisible(frustum)) {
+            car.DrawWireframes(wireframeShader, view, projection);
+        }
+    }
+
+    // Dessine le terrain
+    terrainShader.Activate();
+    terrainShader.setMat4("projection", projection);
+    terrainShader.setMat4("view", view);
+    terrainShader.setVec3("viewPos", viewPos);
+    glm::mat4 terrainModel = glm::mat4(1.0f);
+    terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, -10.0f, 0.0f));
+    terrain.setModelMatrix(terrainModel);
+    terrain.Draw(terrainShader);
 }

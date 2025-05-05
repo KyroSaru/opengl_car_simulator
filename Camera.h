@@ -42,7 +42,7 @@ public:
 	void followTarget(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain);
 
 	// Met à jour la caméra en fonction de son mode et de la position et direction ciblé de la voiture
-	void update(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain);
+	void Update(const glm::vec3& targetPosition, const glm::vec3& targetDirection, const Terrain& terrain);
 private:
 	// Stocke les 3 vecteurs principaux de la caméra
 	glm::vec3 Position;

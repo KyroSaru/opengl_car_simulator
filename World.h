@@ -12,12 +12,15 @@ class World {
 public:
     World(int windowWidth, int windowHeight, GLFWwindow* window);
 
-    void load();
-    void draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader);
-    void update(float deltaTime);
+	// Charge les modèles de voitures
+    void loadModels();
+    // Recalcul la zone de rendu pour chaque joueur (gestion split screen)
     void calculateViewport(int playerIndex, int& x, int& y, int& w, int& h);
 
-    void addPlayer(const std::string& modelPath, const glm::vec3& startPosition);
+    // Mise à jour de la scène
+    void updateScene(float deltaTime);
+    // Rendu de la scène
+    void renderScene(Shader& shader, Shader& wireframeShader, Shader& terrainShader);
 
 private:
     int width, height;
@@ -28,8 +31,16 @@ private:
 
     Frustum frustum;
 
-    // On a pas plus d'un clavier
+	// Un seul clavier et une seule camera noclip
     std::shared_ptr<Keyboard> keyboard;
+    std::shared_ptr<Camera> noClip = nullptr;
 
-    int nbJoueurMax = 4;
+	int maxPlayers = 4;
+
+    // -------------------------------
+
+    // Ajoute une voiture au monde à une position donnée
+    void addPlayer(const std::string& modelPath, const glm::vec3& startPosition);
+	// Dessine les éléments du monde
+    void Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader, int viewportWidth, int viewportHeight, const glm::mat4& view, const glm::vec3& viewPos);
 };
