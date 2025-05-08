@@ -6,10 +6,10 @@
 // Constructeur
 Terrain::Terrain(const std::string& heightMapPath, float maxHeight)
 {
-    generateFromHeightMap(heightMapPath, maxHeight);
+    generateFromHeightMap(heightMapPath, maxHeight, step);
 }
 
-void Terrain::generateFromHeightMap(const std::string& heightMapPath, float maxHeight)
+void Terrain::generateFromHeightMap(const std::string& heightMapPath, float maxHeight, int step)
 {
     // Charge la height map
     int channels;
@@ -25,12 +25,17 @@ void Terrain::generateFromHeightMap(const std::string& heightMapPath, float maxH
     float offsetZ = (height * scale) / 2.0f;
 
     // Génére les sommets
-    for (int z = 0; z < height; ++z)
+    for (int z = 0; z < height; z += step)
     {
-        for (int x = 0; x < width; ++x)
+        for (int x = 0; x < width; x += step)
         {
 			// z : ligne, x : colonne
             float heightValue = data[z * width + x] / 255.0f * maxHeight;
+
+            // Ajoutez un bruit procédural
+            float noise = (std::rand() % 100) / 100.0f * 0.7f; // Bruit entre 0 et 0.7
+            heightValue += noise;
+
             Vertex vertex;
             vertex.position = glm::vec3(x * scale - offsetX, heightValue, z * scale - offsetZ);
             vertex.normal = glm::vec3(0.0f, 0.0f, 0.0f); // Normales par défaut (on les recalcule par la suite)
@@ -39,14 +44,17 @@ void Terrain::generateFromHeightMap(const std::string& heightMapPath, float maxH
         }
     }
 
-    // Génére les indices
-    for (int z = 0; z < height - 1; ++z)
+    // Génére les indices (avec la possibilité d'échantilloner pour réduire la densité de sommets)
+    int reducedWidth = (width + step - 1) / step;
+    int reducedHeight = (height + step - 1) / step;
+
+    for (int z = 0; z < reducedHeight - 1; ++z)
     {
-        for (int x = 0; x < width - 1; ++x)
+        for (int x = 0; x < reducedWidth - 1; ++x)
         {
-            int topLeft = z * width + x;
+            int topLeft = z * reducedWidth + x;
             int topRight = topLeft + 1;
-            int bottomLeft = (z + 1) * width + x;
+            int bottomLeft = (z + 1) * reducedWidth + x;
             int bottomRight = bottomLeft + 1;
 
             indices.push_back(topLeft);
@@ -132,29 +140,30 @@ void Terrain::calculateNormals()
 
 
 float Terrain::getHeightAt(float worldX, float worldZ) const {
-    // Inverse la matrice de transfo du terrain
+    // Inverse la matrice de transformation du terrain
     glm::mat4 inverseModel = glm::inverse(terrainModelMatrix);
 
-    // Conversion coord. globales (worldX, worldZ) dans l'espace local du terrain
+    // Conversion des coordonnées globales (worldX, worldZ) dans l'espace local du terrain
     glm::vec4 localPos = inverseModel * glm::vec4(worldX, 0.0f, worldZ, 1.0f);
 
-	// Coord. du terrain en prenant en compte l'échelle
+    // Coordonnées du terrain en prenant en compte l'échelle
     float terrainX = localPos.x + (width * scale) / 2.0f;
     float terrainZ = localPos.z + (height * scale) / 2.0f;
 
     // Taille d'une cellule de la grille
-    float gridSquareSize = scale;
+    float gridSquareSize = scale * step;
 
     // Indices de la cellule dans laquelle se trouve le point
+    int reducedWidth = (width + step - 1) / step;
     int gridX = static_cast<int>(std::floor(terrainX / gridSquareSize));
     int gridZ = static_cast<int>(std::floor(terrainZ / gridSquareSize));
 
     // Vérifier si le point est en dehors des limites du terrain
-    if (gridX >= width - 1 || gridZ >= height - 1 || gridX < 0 || gridZ < 0) {
+    if (gridX >= reducedWidth - 1 || gridZ >= reducedWidth - 1 || gridX < 0 || gridZ < 0) {
         return 0.0f;
     }
 
-    // Coord. locales dans la cellule
+    // Coordonnées locales dans la cellule
     float xCoord = (terrainX - gridX * gridSquareSize) / gridSquareSize;
     float zCoord = (terrainZ - gridZ * gridSquareSize) / gridSquareSize;
 
@@ -163,18 +172,18 @@ float Terrain::getHeightAt(float worldX, float worldZ) const {
     if (xCoord <= (1 - zCoord)) {
         // Triangle supérieur gauche
         height = barryCentric(
-            glm::vec3(0, vertices[gridZ * width + gridX].position.y, 0),
-            glm::vec3(1, vertices[gridZ * width + (gridX + 1)].position.y, 0),
-            glm::vec3(0, vertices[(gridZ + 1) * width + gridX].position.y, 1),
+            glm::vec3(0, vertices[gridZ * reducedWidth + gridX].position.y, 0),
+            glm::vec3(1, vertices[gridZ * reducedWidth + (gridX + 1)].position.y, 0),
+            glm::vec3(0, vertices[(gridZ + 1) * reducedWidth + gridX].position.y, 1),
             glm::vec2(xCoord, zCoord)
         );
     }
     else {
         // Triangle inférieur droit
         height = barryCentric(
-            glm::vec3(1, vertices[gridZ * width + (gridX + 1)].position.y, 0),
-            glm::vec3(1, vertices[(gridZ + 1) * width + (gridX + 1)].position.y, 1),
-            glm::vec3(0, vertices[(gridZ + 1) * width + gridX].position.y, 1),
+            glm::vec3(1, vertices[gridZ * reducedWidth + (gridX + 1)].position.y, 0),
+            glm::vec3(1, vertices[(gridZ + 1) * reducedWidth + (gridX + 1)].position.y, 1),
+            glm::vec3(0, vertices[(gridZ + 1) * reducedWidth + gridX].position.y, 1),
             glm::vec2(xCoord, zCoord)
         );
     }

@@ -28,9 +28,10 @@ private:
     VAO VAO;
     unsigned int vertexCount;
 
-    // Dimensions et échelle de la height map
+    // Dimensions et échelle de la height map & échantillonnage pour densité des sommets
 	int width, height; 
 	float scale = 2.0f;
+    int step = 4;
 
     // Sommets et indices du terrain
     std::vector<Vertex> vertices;
@@ -42,7 +43,7 @@ private:
     // -------------------------------
 
 	// Génère le terrain à partir d'une height map
-    void generateFromHeightMap(const std::string& heightMapPath, float maxHeight);
+    void generateFromHeightMap(const std::string& heightMapPath, float maxHeight, int step);
 
     // Calcule les normales du terrain
     void calculateNormals();

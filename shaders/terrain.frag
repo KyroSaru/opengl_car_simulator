@@ -1,7 +1,7 @@
 #version 420 core
 
 in vec3 FragPos;         // Position du fragment dans l'espace monde
-in vec3 Normal;          // Normale interpolée
+in flat vec3 Normal;          // Normale interpolée
 in vec2 TexCoords;       // Coord. de texture
 
 out vec4 FragColor;      // Couleur finale du fragment

@@ -14,7 +14,7 @@ class Skybox
 public:
     Skybox();
 
-    void draw(const glm::mat4& view, const glm::mat4 projection);
+    void Draw(const glm::mat4& view, const glm::mat4 projection, float time);
 private:
     GLuint skyboxVao, skyboxVbo, skyboxEbo;
     GLuint texture;

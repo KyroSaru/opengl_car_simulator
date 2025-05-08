@@ -9,7 +9,7 @@ uniform mat4 view;        // Matrice de vue
 uniform mat4 projection;  // Matrice de proj.
 
 out vec3 FragPos;         // Position du fragment dans l'espace monde
-out vec3 Normal;          // Normale interpolée
+out flat vec3 Normal;          // Normale interpolée
 out vec2 TexCoords;       // Coord. de texture
 
 void main()

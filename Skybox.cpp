@@ -1,4 +1,5 @@
 #include"Skybox.h"
+#include <glm/glm.hpp>
 
 float cubemapsVertices[] = {
 	-1.0f, -1.0f,  1.0f, // Coin avant-bas gauche  (0)
@@ -95,21 +96,27 @@ Skybox::Skybox()
 		}
 		else
 		{
-			std::cout << "Failed to load texture: " << faces[i] << std::endl;
+			std::cout << "[SKYBOX] Failed to load texture: " << faces[i] << std::endl;
 			stbi_image_free(data);
 		}
 	}
 }
 
-void Skybox::draw(const glm::mat4& view, const glm::mat4 projection)
+void Skybox::Draw(const glm::mat4& view, const glm::mat4 projection, float time)
 {
 	glDepthFunc(GL_LEQUAL); // derrière 
 
 	shader.Activate();
+	shader.setInt("skyTexture", 0);
 
-	shader.setInt("skybox", 0);
+	// Supprime la translation de la matrice de vue
 	glm::mat4 viewNoTranslation = glm::mat4(glm::mat3(view));
-	shader.setMat4("view", viewNoTranslation);
+
+	// Ajoute une rotation pour simuler le mouvement du ciel
+	float rotationSpeed = 0.01f;
+	glm::mat4 rotation = glm::rotate(viewNoTranslation, time * rotationSpeed, glm::vec3(0.0f, 1.0f, 0.0f));
+
+	shader.setMat4("view", rotation);
 	shader.setMat4("projection", projection);
 
 	glBindVertexArray(skyboxVao);

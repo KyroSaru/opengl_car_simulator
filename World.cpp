@@ -201,6 +201,7 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
     }
 
     // Dessine les wireframes des voitures
+    /*
     wireframeShader.Activate();
     wireframeShader.setMat4("projection", projection);
     wireframeShader.setMat4("view", view);
@@ -209,6 +210,7 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
             car.DrawWireframes(wireframeShader, view, projection);
         }
     }
+    */
 
     // Dessine le terrain
     terrainShader.Activate();
@@ -221,5 +223,5 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
     terrain.Draw(terrainShader);
 
     // Dessine le ciel
-    skybox.draw(view, projection);
+    skybox.Draw(view, projection, glfwGetTime());
 }
