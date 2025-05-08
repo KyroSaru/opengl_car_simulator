@@ -7,6 +7,7 @@
 #include "Frustum.h"
 #include "JoystickManager.h"
 #include "Terrain.h"
+#include "Skybox.h"
 
 class World {
 public:
@@ -27,6 +28,7 @@ private:
     GLFWwindow* window;
 
     Terrain terrain;
+    Skybox skybox;
     std::vector<Car> voitures;
 
     Frustum frustum;

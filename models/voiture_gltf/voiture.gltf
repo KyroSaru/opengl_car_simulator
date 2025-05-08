@@ -253,6 +253,7 @@
 			}
 		},
 		{
+			"alphaMode":"BLEND",
 			"doubleSided":true,
 			"name":"bleu",
 			"pbrMetallicRoughness":{
@@ -859,13 +860,13 @@
 		},
 		{
 			"mimeType":"image/png",
-			"name":"red_metal",
-			"uri":"textures/red_metal.png"
+			"name":"red_metal.png",
+			"uri":"textures/red_metal_png.png"
 		},
 		{
-			"mimeType":"image/jpeg",
-			"name":"bleu",
-			"uri":"textures/bleu.jpg"
+			"mimeType":"image/png",
+			"name":"bleu_transparent",
+			"uri":"textures/bleu_transparent.png"
 		},
 		{
 			"mimeType":"image/png",

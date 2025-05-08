@@ -35,6 +35,9 @@ int main()
 	// Définit la fenêtre au contexte courant (celle qui sera utilisée)
 	glfwMakeContextCurrent(window);
 
+	// Active le V-Sync
+	glfwSwapInterval(1);
+
 	// Charge GLAD et donc les fonctions OpenGL (équivalent de GLEW)
 	gladLoadGL();
 
@@ -51,6 +54,9 @@ int main()
 	
 	// Activer le mode de profondeur (Z-buffer/Depth Buffer)
 	glEnable(GL_DEPTH_TEST);
+	// Activer le blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Activer le backface culling (faire attention à comment les modèles sont crées dans Blender)
 	glEnable(GL_CULL_FACE);

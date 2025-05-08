@@ -26,6 +26,8 @@ public:
 
 	// ------------------------------------------------------------------------
 
+	// Envoie un int au shader
+	void setInt(const std::string& uniform, int value) const;
 	// Envoie un float au shader
 	void setFloat(const std::string& uniform, float value) const;
 	// Envoie un vecteur 3D au shader

@@ -2,7 +2,7 @@
 
 World::World(int windowWidth, int windowHeight, GLFWwindow* win)
     : width(windowWidth), height(windowHeight), window(win),
-    keyboard(std::make_shared<Keyboard>()), terrain("models/terrain/heightmap.png", 25.0f)
+    keyboard(std::make_shared<Keyboard>()), terrain("models/terrain/heightmap.png", 35.0f)
 {
 }
 
@@ -49,7 +49,7 @@ void World::updateScene(float deltaTime)
                 keyboard->assign();
                 voiture.setKeyboard(keyboard);
                 voiture.getCamera()->setGamepad(nullptr);
-				std::cout << "Player " << voiture.getId() << " uses the keyboard.\n";
+				std::cout << "Player " << voiture.getId() + 1 << " uses the keyboard.\n";
             }
             else if (!availableGamepads.empty()) {
                 auto gamepad = availableGamepads.back();
@@ -58,7 +58,7 @@ void World::updateScene(float deltaTime)
                 gamepad->assign();
                 voiture.setGamepad(gamepad);
                 voiture.getCamera()->setGamepad(gamepad);
-				std::cout << "Player " << voiture.getId() << " uses gamepad " << gamepad->jid() << " : " << glfwGetJoystickName(gamepad->jid()) << std::endl;
+				std::cout << "Player " << voiture.getId() + 1 << " uses gamepad " << gamepad->jid() + 1 << " : " << glfwGetJoystickName(gamepad->jid()) << std::endl;
             }
              
         }
@@ -216,7 +216,10 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
     terrainShader.setMat4("view", view);
     terrainShader.setVec3("viewPos", viewPos);
     glm::mat4 terrainModel = glm::mat4(1.0f);
-    terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, -10.0f, 0.0f));
+    terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, -20.0f, 0.0f));
     terrain.setModelMatrix(terrainModel);
     terrain.Draw(terrainShader);
+
+    // Dessine le ciel
+    skybox.draw(view, projection);
 }

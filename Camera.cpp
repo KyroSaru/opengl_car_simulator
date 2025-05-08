@@ -138,18 +138,10 @@ void Camera::Inputs(GLFWwindow* window)
 			rotX = rightStickX * gamepadSensitivity;
 			rotY = rightStickY * gamepadSensitivity;
 		}
-
 		// Gestion Souris
-		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		else
 		{
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-			// Évite que la caméra ne saute au 1er clic
-			if (firstClick)
-			{
-				glfwSetCursorPos(window, (width / 2), (height / 2));
-				firstClick = false;
-			}
 
 			// Récupére les coordoonées de la souris
 			double mouseX;
@@ -162,13 +154,6 @@ void Camera::Inputs(GLFWwindow* window)
 
 			// Définit le curseur de la souris au milieu de l'écran pour éviter qu'il ne sorte de la fenêtre
 			glfwSetCursorPos(window, (width / 2), (height / 2));
-		}
-		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
-		{
-			// Révèle le curseur de la souris quand on ne regarde plus autour
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			// Réinit. le booléen pour que la caméra ne saute pas au prochain clic
-			firstClick = true;
 		}
 
 		// Applique/ajuste les rotations (yaw/pitch)

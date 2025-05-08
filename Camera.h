@@ -50,7 +50,7 @@ private:
 	glm::vec3 Up = glm::vec3(0.0f, 1.0f, 0.0f);
 	// Stocke la largeur et la hauteur de la fenêtre
 	int width, height;
-	// Ajuster la vitesse de la caméra et la sensibilité quand on regarde autour
+	// Ajuster la vitesse de la caméra et la sensibilité quand on regarde autour (a voir si on peut pas faire par rapport au taux de rafraichissement de l'écran pour la sensi. car bien souvent, c'est trop rapide ou trop lent en changeant de PC)
 	float speed = 0.1f;
 	float sensitivity = 50.0f;
 	float gamepadSensitivity = 0.5f;

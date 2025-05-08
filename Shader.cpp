@@ -77,6 +77,12 @@ void Shader::Delete()
 
 // ------------------------------------------------------
 
+// Envoie un int au shader
+void Shader::setInt(const std::string& uniform, int value) const
+{
+	glUniform1f(glGetUniformLocation(ID, uniform.c_str()), value);
+}
+
 // Envoie un float au shader
 void Shader::setFloat(const std::string& uniform, float value) const
 {

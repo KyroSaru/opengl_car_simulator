@@ -215,7 +215,7 @@ void Car::updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terr
 {
     // [GESTION TERRAIN COLLISION]
     // Constante pour l'interpolation (plus petite = plus fluide)
-    const float smoothing = 20.0f;
+    const float smoothing = 25.0f;
 
     // Calcule la matrice de rotation du véhicule pour MAJ les offsets des roues
     glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-glm::degrees(atan2(direction.x, -direction.z))), glm::vec3(0.0f, 1.0f, 0.0f));
