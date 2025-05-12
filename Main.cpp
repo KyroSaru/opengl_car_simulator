@@ -51,6 +51,7 @@ int main()
 	Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
 	Shader wireframeShader("shaders/wireframe.vert", "shaders/wireframe.frag");
 	Shader terrainShader("shaders/terrain.vert", "shaders/terrain.frag");
+	Shader cactusShader("shaders/cactus.vert", "shaders/cactus.frag");
 	
 	// Activer le mode de profondeur (Z-buffer/Depth Buffer)
 	glEnable(GL_DEPTH_TEST);
@@ -80,7 +81,7 @@ int main()
 		glfwSetWindowTitle(window, windowTitle.c_str());
 
 		world.updateScene(deltaTime);
-		world.renderScene(shaderProgram, wireframeShader, terrainShader);
+		world.renderScene(shaderProgram, wireframeShader, terrainShader, cactusShader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -88,6 +89,9 @@ int main()
 
 	// Supprime tous les objets créés
 	shaderProgram.Delete();
+	wireframeShader.Delete();
+	terrainShader.Delete();
+	cactusShader.Delete();
 	// Supprime la fenêtre avant la fin du programme
 	glfwDestroyWindow(window);
 	// Termine GLFW

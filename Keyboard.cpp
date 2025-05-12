@@ -19,3 +19,23 @@ float Keyboard::getAccelInput(GLFWwindow* window) const
         accel -= 1.0f;
     return accel;
 }
+
+bool Keyboard::wasEnterPressed(GLFWwindow* window) const {
+    static bool wasPressedLastFrame = false;
+    bool isCurrentlyPressed = glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS;
+
+    bool justReleased = wasPressedLastFrame && !isCurrentlyPressed;
+    wasPressedLastFrame = isCurrentlyPressed;
+
+    return justReleased;
+}
+
+bool Keyboard::wasBackspacePressed(GLFWwindow* window) const {
+    static bool wasPressedLastFrame = false;
+    bool isCurrentlyPressed = glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS;
+
+    bool justReleased = wasPressedLastFrame && !isCurrentlyPressed;
+    wasPressedLastFrame = isCurrentlyPressed;
+
+    return justReleased;
+}

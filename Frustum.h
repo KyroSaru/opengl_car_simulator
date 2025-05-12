@@ -2,8 +2,9 @@
 #define FRUSTUM_H
 
 #include <glm/glm.hpp>
-#include "Model.h"
 #include "BoundingBox.h"
+
+class Model;
 
 class Frustum {
 private:

@@ -15,6 +15,10 @@ public:
     // Constructeur de terrain
     Terrain(const std::string& heightMapPath, float maxHeight);
 
+	int getWidth() const { return width; }
+	int getHeight() const { return height; }
+	float getScale() const { return scale; }
+
     // Définit la matrice modèle du terrain
     void setModelMatrix(const glm::mat4& modelMatrix) { terrainModelMatrix = modelMatrix; }
     // Obtient la hauteur à une position donnée sur le plan (x, z) pour les roues de Car::updatePhysics
@@ -31,7 +35,7 @@ private:
     // Dimensions et échelle de la height map & échantillonnage pour densité des sommets
 	int width, height; 
 	float scale = 2.0f;
-    int step = 4;
+    int step = 3;
 
     // Sommets et indices du terrain
     std::vector<Vertex> vertices;

@@ -43,7 +43,7 @@ void Mesh::Draw(Shader& shader)
 			num = std::to_string(numNormal++);
 		else if (type == "height")
 			num = std::to_string(numHeight++);
-		
+
 		// Assigne la texture à l'unité de texture correspondante, l'envoie au shader et la lie
 		textures[i].texUnit(shader, (type + num).c_str(), i);
 		textures[i].Bind();

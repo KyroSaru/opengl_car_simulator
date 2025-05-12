@@ -67,6 +67,10 @@ private:
 	// Séparation du véhicule en partie (pour animation des roues et du corps séparée)
 	Model body;
 	Model wheels[4];
+	Model fenetres;
+	Model retro_miroir_G, retro_miroir_D;
+	Model volant;
+
 	// Positions locales des roues par rapport au centre de la voiture
 	glm::vec3 wheelOffsets[4];
 	// Hauteur y des roues

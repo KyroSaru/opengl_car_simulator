@@ -16,6 +16,14 @@ Car::Car(const std::string& modelPath)
     wheels[2] = Model(modelPath, "Roue_AVD");
     wheels[3] = Model(modelPath, "Roue_AVG");
 
+    // Rétroviseurs
+    retro_miroir_G = Model(modelPath, "Retro_Miroir_G");
+    retro_miroir_D = Model(modelPath, "Retro_Miroir_D");
+    // Volant
+    volant = Model(modelPath, "Volant");
+    // Fenêtres
+    fenetres = Model(modelPath, "Fenetres");
+
     // Initialiser les positions locales des roues (calculer via blender + screen)
     wheelOffsets[0] = glm::vec3(1.375f, 0.572f, 3.141f);
     wheelOffsets[1] = glm::vec3(-1.375f, 0.572f, 3.141f);
@@ -139,11 +147,15 @@ bool Car::isVisible(const Frustum& frustum) const {
 
 void Car::Draw(Shader& shader)
 {
-    // Transfos du corps
+    // Transfos du véhicule (sauf les roues)
     glm::mat4 body_model = getBodyModelMatrix();
     // std::cout << "Car Model Matrix: " << glm::to_string(body_model) << std::endl;
     shader.setMat4("model", body_model);
     body.Draw(shader);
+    retro_miroir_G.Draw(shader);
+    retro_miroir_D.Draw(shader);
+    volant.Draw(shader);
+    fenetres.Draw(shader);
 
     glm::mat4 init_car_model = getCarModelMatrix();
 

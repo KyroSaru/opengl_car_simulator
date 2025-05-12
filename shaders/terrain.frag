@@ -1,32 +1,31 @@
 #version 420 core
 
 in vec3 FragPos;         // Position du fragment dans l'espace monde
-in flat vec3 Normal;          // Normale interpolée
-in vec2 TexCoords;       // Coord. de texture
+in flat vec3 FragNormal;          // Normale interpolée
+in vec2 FragTexCoords;       // Coord. de texture
 
 out vec4 FragColor;      // Couleur finale du fragment
-
 
 // Lumière directionnelle
 uniform vec3 lightDir;   // Direction de la lumière
 uniform vec3 lightColor; // Couleur de la lumière
-uniform vec3 viewPos;    // Position de la caméra
 
-// Matériau
-uniform vec3 ambientColor;  // Composante ambiante
-uniform vec3 diffuseColor;  // Composante diffuse
+// Couleur du terrain
+uniform vec3 ambientColor; // Couleur ambiante
+uniform vec3 diffuseColor; // Couleur diffuse
 
 void main()
 {
     // Normalise la normale
-    vec3 norm = normalize(Normal);
+    vec3 norm = normalize(FragNormal);
+    vec3 lightDirection = normalize(lightDir);
 
     // Composante ambiante
-    vec3 ambient = ambientColor * lightColor;
+    vec3 ambient = ambientColor;
 
-    // Composante diffuse
-    float diff = max(dot(norm, -lightDir), 0.0);
-    vec3 diffuse = diff * diffuseColor * lightColor;
+    // Calcul de la lumière diffuse
+    float diff = max(dot(norm, -lightDirection), 0.0);
+    vec3 diffuse = diff * lightColor * diffuseColor;
 
     // Couleur finale
     vec3 result = ambient + diffuse;

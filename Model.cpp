@@ -212,3 +212,10 @@ void Model::calculateBoundingBox() {
 		}
 	}
 }
+
+bool Model::isVisible(const Frustum& frustum, const glm::mat4& modelMatrix) const {
+	// Applique la transformation de la matrice modèle à la bounding box
+	BoundingBox transformedBox = boundingBox.getTransformed(modelMatrix);
+	// Vérifie si la bounding box transformée est dans le frustum
+	return frustum.isInFrustum(transformedBox);
+}

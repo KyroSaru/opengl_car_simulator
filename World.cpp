@@ -1,18 +1,21 @@
 #include "World.h"
 
+#include <random>
+
 World::World(int windowWidth, int windowHeight, GLFWwindow* win)
     : width(windowWidth), height(windowHeight), window(win),
-    keyboard(std::make_shared<Keyboard>()), terrain("models/terrain/heightmap.png", 35.0f)
+    keyboard(std::make_shared<Keyboard>()), terrain("models/terrain/heightmap.png", 35.0f), cactus("models/cactus/cactus.gltf")
 {
+    JoystickManager::init();
 }
 
 
 void World::loadModels()
 {
-    addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(-2.5f, 2.0f, 0.0f));
-    addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(2.5f, 2.0f, 0.0f));
-    // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(-7.5f, 2.0f, 0.0f));
-    // addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(7.5f, 2.0f, 0.0f));
+    addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(0.0f, 2.0f, 0.0f));
+
+    // Génère 50 cactus aléatoires
+    generateCacti(50);
 }
 
 void World::addPlayer(const std::string& modelPath, const glm::vec3& startPosition) {
@@ -36,41 +39,75 @@ void World::addPlayer(const std::string& modelPath, const glm::vec3& startPositi
     voitures.push_back(car);
 }
 
-void World::updateScene(float deltaTime)
-{
-    // Cherche tous les gamepads disponibles
+void World::worldInput() {
+    if (keyboard->wasEnterPressed(window))
+        addPlayer("models/voiture_gltf/voiture.gltf", voitures[voitures.size() - 1].getPosition() + glm::vec3(15.0f, 0.0f, 0.0f)); // pas optimal rien ne nous dit que cette position est libre ...
+
+    if (keyboard->wasBackspacePressed(window)) {
+        if (voitures.size() > 1) // Evidemment si il ne reste plus qu'un joueur on ne permet pas le retrait du joueur restant
+        {
+            auto& car = voitures.back();
+
+            std::cout << "Retrait du joueur n°" << car.getId() + 1 << " de la partie ...\n";
+
+
+            // Si la voiture a une manette, on désasigne la manette
+            if (car.hasGamepad())
+                car.getGamepad()->unassign();
+            // Peut-etre ajouter quelque chose de similair pour le clavier, bon faut etre fort pour deconnecter son clavier ...
+
+            voitures.pop_back();
+        }
+    }
+}
+
+void World::bindController() {
+    // On cherche tous les gamepads disponibles
     auto availableGamepads = JoystickManager::findAllAvailableGamepads();
 
     for (auto& voiture : voitures) {
-		// Assigne un gamepad ou un clavier à la voiture (priorité au clavier puis les manettes)
-        if (!voiture.hasGamepad() && !voiture.hasKeyboard()) {
-            if (!keyboard->isAssigned())
-            {
-                keyboard->assign();
-                voiture.setKeyboard(keyboard);
-                voiture.getCamera()->setGamepad(nullptr);
-				std::cout << "Player " << voiture.getId() + 1 << " uses the keyboard.\n";
-            }
-            else if (!availableGamepads.empty()) {
+        // la voiture n'a ni clavier ni gamepad
+        if (!voiture.hasGamepad() && !voiture.hasKeyboard()) { // remplacer pas isAssigned ?
+            if (!availableGamepads.empty()) {
                 auto gamepad = availableGamepads.back();
                 availableGamepads.pop_back();
 
                 gamepad->assign();
                 voiture.setGamepad(gamepad);
                 voiture.getCamera()->setGamepad(gamepad);
-				std::cout << "Player " << voiture.getId() + 1 << " uses gamepad " << gamepad->jid() + 1 << " : " << glfwGetJoystickName(gamepad->jid()) << std::endl;
+                std::cout << "Joueur n°" << voiture.getId() + 1 << " ; Manette n°" << gamepad->jid() << " connectée : " << glfwGetJoystickName(gamepad->jid()) << std::endl;
             }
-             
+            else if (!keyboard->isAssigned())
+            {
+                keyboard->assign();
+                voiture.setKeyboard(keyboard);
+                voiture.getCamera()->setGamepad(nullptr); // ajouter une gestion de la souris dynamique
+                std::cout << "Joueur " << voiture.getId() + 1 << " utilise le clavier.\n";
+            }
         }
-        // Gamepad mais deconnecté
+        // La voiture a eu un gamepad mais celui-ci a été deconnecté
         else if (voiture.hasGamepad() && !JoystickManager::isConnected(voiture.getGamepad()->jid())) {
             auto currentGamepad = voiture.getGamepad();
             currentGamepad->unassign();
             voiture.setGamepad(nullptr);
             voiture.getCamera()->setGamepad(nullptr);
-            std::cout << "Disconnected gamepad! Switching to keyboard.\n";
+            std::cout << "Manette déconnectée ! Retour clavier.\n";
         }
+    }
+}
 
+void World::updateScene(float deltaTime)
+{
+    // Met à jour la direction de la lumière
+    updateLightDirection(deltaTime);
+
+    // Cherche tous les gamepads disponibles
+    bindController();
+    // vérifie si le joueurs demande l'ajout d'un autre joueur
+    worldInput();
+
+
+    for (auto& voiture : voitures) {
         // Physique pris en compte qu'en 3rd Person
         if (voiture.getCamera()->getMode() == THIRD_PERSON) {
             voiture.updatePhysics(deltaTime, window, terrain);
@@ -145,7 +182,7 @@ void World::calculateViewport(int playerIndex, int& x, int& y, int& w, int& h) {
     }
 }
 
-void World::renderScene(Shader& shader, Shader& wireframeShader, Shader& terrainShader)
+void World::renderScene(Shader& shader, Shader& wireframeShader, Shader& terrainShader, Shader& cactusShader)
 {
     // Définit la couleur de fond de la fenêtre (RGBA)
     glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
@@ -164,7 +201,7 @@ void World::renderScene(Shader& shader, Shader& wireframeShader, Shader& terrain
     if (noClip) {
         // [NO CLIP]
         glViewport(0, 0, width, height);
-        Draw(shader, wireframeShader, terrainShader, width, height, noClip->getViewMatrix(), noClip->getPosition());
+        Draw(shader, wireframeShader, terrainShader, cactusShader, width, height, noClip->getViewMatrix(), noClip->getPosition());
     }
     else {
         // [3RD PERSON]
@@ -177,23 +214,29 @@ void World::renderScene(Shader& shader, Shader& wireframeShader, Shader& terrain
             glScissor(x, y, w, h);
 
             auto camera = voitures[i].getCamera();
-            Draw(shader, wireframeShader, terrainShader, w, h, camera->getViewMatrix(), camera->getPosition());
+            Draw(shader, wireframeShader, terrainShader, cactusShader, w, h, camera->getViewMatrix(), camera->getPosition());
 
             glDisable(GL_SCISSOR_TEST);
         }
     }
 }
 
-void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader, int viewportWidth, int viewportHeight, const glm::mat4& view, const glm::vec3& viewPos)
+void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader, Shader& cactusShader, int viewportWidth, int viewportHeight, const glm::mat4& view, const glm::vec3& viewPos)
 {
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)viewportWidth / (float)viewportHeight, 0.1f, 200.0f);
 	// Calcul du frustum à partir de la matrice de proj. et de vue
     frustum.calculateFrustum(projection, view);
 
-    // Dessine les voitures
+    // --- [VOITURE] ---
     shader.Activate();
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
+
+    shader.setVec3("lightDir", lightDir);
+    shader.setVec3("lightColor", lightColor);
+    shader.setVec3("ambientColor", carAmbientColor);
+    shader.setVec3("diffuseColor", carDiffuseColor);
+
     for (auto& car : voitures) {
         if (car.isVisible(frustum)) {
             car.Draw(shader);
@@ -212,16 +255,72 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
     }
     */
 
-    // Dessine le terrain
+    // --- [TERRAIN] ---
     terrainShader.Activate();
     terrainShader.setMat4("projection", projection);
     terrainShader.setMat4("view", view);
     terrainShader.setVec3("viewPos", viewPos);
+
+    // Infos Soleil
+    terrainShader.setVec3("lightDir", lightDir);          // Direction du soleil
+    terrainShader.setVec3("lightColor", lightColor);      // Couleur du soleil
+
     glm::mat4 terrainModel = glm::mat4(1.0f);
     terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, -20.0f, 0.0f));
     terrain.setModelMatrix(terrainModel);
     terrain.Draw(terrainShader);
 
-    // Dessine le ciel
-    skybox.Draw(view, projection, glfwGetTime());
+    // --- [CIEL] ---
+    skybox.Draw(view, projection, static_cast<float>(glfwGetTime()));
+
+    // --- [CACTUS] ---
+	cactusShader.Activate();
+	cactusShader.setMat4("projection", projection);
+	cactusShader.setMat4("view", view);
+
+    // Infos Soleil
+    cactusShader.setVec3("lightDir", lightDir);          // Direction du soleil
+    cactusShader.setVec3("lightColor", lightColor);      // Couleur du soleil
+    // Transmet les propriétés du matériau
+    cactusShader.setVec3("ambientColor", cactusAmbientColor);  // Couleur ambiante
+    cactusShader.setVec3("diffuseColor", cactusDiffuseColor);  // Couleur diffuse
+
+    // Dessine chaque cactus
+    for (const auto& model : cactusModelMatrices) {
+        if (cactus.isVisible(frustum, model)) {
+            cactusShader.setMat4("model", model);
+            cactus.Draw(cactusShader);
+        }
+    }
+
+}
+
+void World::generateCacti(int count) {
+    for (int i = 0; i < count; ++i) {
+        // Génère des coordonnées aléatoires (x, z)
+        float x = static_cast<float>(rand() % static_cast<int>(terrain.getWidth() * terrain.getScale())) - terrain.getWidth() * terrain.getScale() / 2.0f;
+        float z = static_cast<float>(rand() % static_cast<int>(terrain.getHeight() * terrain.getScale())) - terrain.getHeight() * terrain.getScale() / 2.0f;
+
+        // Récupère la hauteur du terrain à cette position
+        float y = terrain.getHeightAt(x, z);
+
+        // Génère une échelle et une rotation aléatoires
+        float scale = 1.5f + static_cast<float>(rand() % 150) / 100.0f; // Entre 1.5 et 3.0
+        float rotation = static_cast<float>(rand() % 360); // Entre 0 et 360 degrés
+
+        // Crée une matrice modèle pour ce cactus
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(x, y - 20.0f, z)); // Translation
+        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotation Y
+        model = glm::scale(model, glm::vec3(scale)); // Échelle
+
+        // Stocke la matrice modèle
+        cactusModelMatrices.push_back(model);
+    }
+}
+
+void World::updateLightDirection(float deltaTime) 
+{
+	// Applique la rotation à la direction de la lumière
+	lightDir = glm::rotate(lightDir, 0.5f * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
 }

@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "BoundingBox.h"
+#include "Frustum.h"
 
 class Model
 {
@@ -33,6 +34,8 @@ public:
 	// Parcours tous les meshs et les dessine
 	void Draw(Shader& shader);
 
+	// Méthode pour savoir si un modèle est visible dans le frustum
+	bool isVisible(const Frustum& frustum, const glm::mat4& modelMatrix) const;
 private:
 	// Charge un modèle à partir d'un fichier spécifié par son chemin
 	void loadModel(const std::string& path);

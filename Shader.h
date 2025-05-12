@@ -24,6 +24,9 @@ public:
 	// Supprime le Shader Program
 	void Delete();
 
+	// Getter du nom du shader
+
+
 	// ------------------------------------------------------------------------
 
 	// Envoie un int au shader

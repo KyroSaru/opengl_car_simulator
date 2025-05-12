@@ -30,8 +30,8 @@ Texture::Texture(const char* image, const char* texType, GLuint slot)
 
 	// Assigne l'image à la texture OpenGL en fonction de son nombre de canaux de couleur
 	if (numColCh == 4) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
-	else if (numColCh == 2) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RG, GL_UNSIGNED_BYTE, bytes);
 	else if (numColCh == 3) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
+	else if (numColCh == 2) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RG, GL_UNSIGNED_BYTE, bytes);
 	else if (numColCh == 1) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RED, GL_UNSIGNED_BYTE, bytes);
 	else {
 		std::cerr << "[TEXTURE] " << path << "(" << numColCh << " channels)" << std::endl;

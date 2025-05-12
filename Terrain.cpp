@@ -97,11 +97,7 @@ void Terrain::Draw(Shader& shader)
 {
     shader.Activate();
 
-    // Envoie les uniforms de la lumière (direction, couleur blanche)
-    shader.setVec3("lightDir", glm::normalize(glm::vec3(-0.5f, -1.0f, -0.5f)));
-    shader.setVec3("lightColor", glm::vec3(1.0f, 0.9f, 0.9f));
-
-    // Envoie les uniforms du matériau (composante ambiante, diffuse, spéculaire et brillance)
+    // Envoie les uniforms du matériau (composante ambiante, diffuse)
     shader.setVec3("ambientColor", glm::vec3(0.8f, 0.5f, 0.3f));
     shader.setVec3("diffuseColor", glm::vec3(0.7f, 0.5f, 0.4f));
 
