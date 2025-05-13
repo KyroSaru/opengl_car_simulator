@@ -68,6 +68,7 @@ private:
 	Model body;
 	Model wheels[4];
 	Model fenetres;
+	Model phares;
 	Model retro_miroir_G, retro_miroir_D;
 	Model volant;
 

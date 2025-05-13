@@ -308,11 +308,11 @@ void World::generateCacti(int count) {
         float scale = 1.5f + static_cast<float>(rand() % 150) / 100.0f; // Entre 1.5 et 3.0
         float rotation = static_cast<float>(rand() % 360); // Entre 0 et 360 degrés
 
-        // Crée une matrice modèle pour ce cactus
+        // Matrice Model des cactus
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(x, y - 20.0f, z)); // Translation
-        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f)); // Rotation Y
-        model = glm::scale(model, glm::vec3(scale)); // Échelle
+        model = glm::translate(model, glm::vec3(x, y - 20.0f, z));
+        model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(scale));
 
         // Stocke la matrice modèle
         cactusModelMatrices.push_back(model);

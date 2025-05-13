@@ -16,6 +16,8 @@ Car::Car(const std::string& modelPath)
     wheels[2] = Model(modelPath, "Roue_AVD");
     wheels[3] = Model(modelPath, "Roue_AVG");
 
+    // Phares
+    phares = Model(modelPath, "Phares");
     // Rétroviseurs
     retro_miroir_G = Model(modelPath, "Retro_Miroir_G");
     retro_miroir_D = Model(modelPath, "Retro_Miroir_D");
@@ -152,6 +154,7 @@ void Car::Draw(Shader& shader)
     // std::cout << "Car Model Matrix: " << glm::to_string(body_model) << std::endl;
     shader.setMat4("model", body_model);
     body.Draw(shader);
+    phares.Draw(shader);
     retro_miroir_G.Draw(shader);
     retro_miroir_D.Draw(shader);
     volant.Draw(shader);
