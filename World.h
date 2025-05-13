@@ -31,7 +31,7 @@ private:
     Skybox skybox;
     std::vector<Car> voitures;
     Model cactus;
-    Model virevoltant;
+    Model bois_abandon;
     std::vector<glm::mat4> cactusModelMatrices; // Liste des matrices modèle des cactus
 
 	// Lumière du soleil

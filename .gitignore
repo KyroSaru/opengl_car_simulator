@@ -24,3 +24,4 @@ models/*
 !models/voiture_gltf
 !models/terrain
 !models/cactus
+!models/bois_abandon

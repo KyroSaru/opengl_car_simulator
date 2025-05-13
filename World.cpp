@@ -4,7 +4,7 @@
 
 World::World(int windowWidth, int windowHeight, GLFWwindow* win)
     : width(windowWidth), height(windowHeight), window(win),
-    keyboard(std::make_shared<Keyboard>()), terrain("models/terrain/heightmap.png", 35.0f), cactus("models/cactus/cactus.gltf")
+    keyboard(std::make_shared<Keyboard>()), terrain("models/terrain/heightmap.png", 35.0f), cactus("models/cactus/cactus.gltf"), bois_abandon("models/bois_abandon/bois_abandon.gltf")
 {
     JoystickManager::init();
 }
@@ -293,6 +293,13 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
         }
     }
 
+    // -- [STRUCTURE ABANDONNEE] ---
+    glm::mat4 boisModel = glm::mat4(1.0f);
+    boisModel = glm::translate(boisModel, glm::vec3(0.0f, -6.0f, 4.0f));
+    boisModel = glm::rotate(boisModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    boisModel = glm::scale(boisModel, glm::vec3(1.5f, 1.5f, 1.5f));
+    cactusShader.setMat4("model", boisModel);
+    bois_abandon.Draw(cactusShader);
 }
 
 void World::generateCacti(int count) {
