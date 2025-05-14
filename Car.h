@@ -4,6 +4,7 @@
 #include "Model.h"
 #include "Frustum.h"
 #include "Terrain.h"
+#include "Shader.h"
 
 #include "Keyboard.h"
 #include "Gamepad.h"
@@ -16,9 +17,11 @@ public:
 	// Getters/Setters
 	int getId() const { return id; }
 	glm::vec3 getPosition() const;
-	glm::vec3 getDirection() const;
 	void setPosition(const glm::vec3& position);
+	glm::vec3 getDirection() const;
 	void setDirection(const glm::vec3& direction);
+	bool getHeadlightsOn() const { return headlightsOn; }
+	void setHeadlightsOn(bool on) { headlightsOn = on; }
 
 	// Position du corps de la voiture (ajout de la hauteur du corps par rapport aux roues)
 	glm::vec3 getBodyPosition() const;
@@ -36,7 +39,7 @@ public:
 	bool isVisible(const Frustum& frustum) const;
 
 	// Dessine la voiture
-	void Draw(Shader& shader);
+	void Draw(Shader& carShader, Shader& phareShader);
 	// Dessine la bounding box de la voiture
 	void DrawWireframes(Shader& wireframeShader, const glm::mat4& view, const glm::mat4& projection) const;
 
@@ -79,13 +82,18 @@ private:
 	// Distance constante entre le corps et les roues
 	const float bodyToWheelDistance = 0.54f; 
 
+	// Phares
+	bool headlightsOn = false;
+	glm::vec3 headlightColorOn = glm::vec3(1.0f, 1.0f, 0.8f);
+	glm::vec3 headlightColorOff = glm::vec3(0.5f, 0.2f, 0.2f);
+
 	// Gestion des manettes (en dehors de la classe)
 	std::shared_ptr<Gamepad> _gamepad = nullptr;
 	// Gestion du clavier
 	std::shared_ptr<Keyboard> _keyboard = nullptr;
 	// Gestion de la caméra
 	std::shared_ptr<Camera> camera = nullptr;
-
+	
 	// [ATTRIBUTS PHYSIQUE]
 	glm::vec3 position;
 	glm::vec3 direction;

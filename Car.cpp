@@ -7,26 +7,23 @@ int Car::nextId = 0;
 Car::Car(const std::string& modelPath)
     : position(0.0f, 2.0f, 0.0f), direction(0.0f, 0.0f, -1.0f), id(nextId++)
 {
-    // Charger le corps de la voiture
+    // Charge le corps de la voiture
     body = Model(modelPath, "Body");
 
-    // Charger les roues
+    // Charge phares, retro, volant et fenêtres
+    phares = Model(modelPath, "Phares");
+    retro_miroir_G = Model(modelPath, "Retro_Miroir_G");
+    retro_miroir_D = Model(modelPath, "Retro_Miroir_D");
+    volant = Model(modelPath, "Volant");
+    fenetres = Model(modelPath, "Fenetres");
+
+    // Charge les roues
     wheels[0] = Model(modelPath, "Roue_ARD");
     wheels[1] = Model(modelPath, "Roue_ARG");
     wheels[2] = Model(modelPath, "Roue_AVD");
     wheels[3] = Model(modelPath, "Roue_AVG");
 
-    // Phares
-    phares = Model(modelPath, "Phares");
-    // Rétroviseurs
-    retro_miroir_G = Model(modelPath, "Retro_Miroir_G");
-    retro_miroir_D = Model(modelPath, "Retro_Miroir_D");
-    // Volant
-    volant = Model(modelPath, "Volant");
-    // Fenêtres
-    fenetres = Model(modelPath, "Fenetres");
-
-    // Initialiser les positions locales des roues (calculer via blender + screen)
+    // Initialise les positions locales des roues (calculer via blender + screen)
     wheelOffsets[0] = glm::vec3(1.375f, 0.572f, 3.141f);
     wheelOffsets[1] = glm::vec3(-1.375f, 0.572f, 3.141f);
     wheelOffsets[2] = glm::vec3(1.375f, 0.572f, -1.9615f); // A AJUSTER (car on dirait qu'elle va partir)
@@ -147,21 +144,26 @@ bool Car::isVisible(const Frustum& frustum) const {
 }
 
 
-void Car::Draw(Shader& shader)
+void Car::Draw(Shader& carShader, Shader& phareShader)
 {
     // Transfos du véhicule (sauf les roues)
     glm::mat4 body_model = getBodyModelMatrix();
     // std::cout << "Car Model Matrix: " << glm::to_string(body_model) << std::endl;
-    shader.setMat4("model", body_model);
-    body.Draw(shader);
-    phares.Draw(shader);
-    retro_miroir_G.Draw(shader);
-    retro_miroir_D.Draw(shader);
-    volant.Draw(shader);
-    fenetres.Draw(shader);
+    carShader.Activate();
+    carShader.setMat4("model", body_model);
+    body.Draw(carShader);
+    retro_miroir_G.Draw(carShader);
+    retro_miroir_D.Draw(carShader);
+    volant.Draw(carShader);
+    fenetres.Draw(carShader);
+
+    // Phares
+    phareShader.Activate();
+    phareShader.setMat4("model", body_model);
+    phareShader.setVec3("headlightColor", headlightsOn ? headlightColorOn : headlightColorOff);
+    phares.Draw(phareShader);
 
     glm::mat4 init_car_model = getCarModelMatrix();
-
     // Récupérer les angle du corps (angles.x = pitch, angles.y = roll)
     glm::vec2 bodyAngles = calculateBodyAngles();
 
@@ -189,8 +191,9 @@ void Car::Draw(Shader& shader)
         wheel_model = glm::translate(wheel_model, wheelOffsets[i]);
 
         // std::cout << "Wheel " << i << " Model Matrix: " << glm::to_string(wheel_model) << std::endl;
-        shader.setMat4("model", wheel_model);
-        wheels[i].Draw(shader);
+        carShader.Activate();
+        carShader.setMat4("model", wheel_model);
+        wheels[i].Draw(carShader);
     }
 }
 

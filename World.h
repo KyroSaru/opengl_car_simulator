@@ -21,7 +21,7 @@ public:
     // Mise à jour de la scène
     void updateScene(float deltaTime);
     // Rendu de la scène
-    void renderScene(Shader& shader, Shader& wireframeShader, Shader& terrainShader, Shader& cactusShader);
+    void renderScene(Shader& shader, Shader& phareShader, Shader& wireframeShader, Shader& terrainShader, Shader& defaultShader);
 
 private:
     int width, height;
@@ -32,19 +32,35 @@ private:
     std::vector<Car> voitures;
     Model cactus;
     Model bois_abandon;
-    std::vector<glm::mat4> cactusModelMatrices; // Liste des matrices modèle des cactus
+    Model pierre1, pierre2, pierre3;
+    Model bois1, bois2, bois3;
+    Model herbe1, herbe2, herbe3;
+
+    // Liste des matrices modèle des cactus, pierres
+    std::vector<glm::mat4> cactusModelMatrices; 
+    std::vector<glm::mat4> pierreModelMatrices;
+    std::vector<glm::mat4> boisModelMatrices;
+    std::vector<glm::mat4> herbeModelMatrices;
 
 	// Lumière du soleil
     glm::vec3 lightDir = glm::normalize(glm::vec3(-0.5f, -1.0f, -0.5f)); // Direction du soleil
     glm::vec3 lightColor = glm::vec3(1.0f, 0.9f, 0.8f);                 // Couleur du soleil
 
-    // Matériau Cactus
-    glm::vec3 cactusAmbientColor = glm::vec3(0.7f, 0.6f, 0.4f);
-    glm::vec3 cactusDiffuseColor = glm::vec3(0.4f, 0.7f, 0.4f);
-
     // Matériau Voiture
     glm::vec3 carAmbientColor = glm::vec3(0.9f, 0.8f, 0.6f);
     glm::vec3 carDiffuseColor = glm::vec3(0.8f, 0.6f, 0.6f);
+    // Matériau Cactus
+    glm::vec3 cactusAmbientColor = glm::vec3(0.7f, 0.6f, 0.4f);
+    glm::vec3 cactusDiffuseColor = glm::vec3(0.4f, 0.7f, 0.4f);
+    // Matériau Pierre
+    glm::vec3 pierreAmbientColor = glm::vec3(0.6f, 0.4f, 0.4f);
+    glm::vec3 pierreDiffuseColor = glm::vec3(0.8f, 0.6f, 0.6f);
+	// Matériau Bois
+	glm::vec3 boisAmbientColor = glm::vec3(0.5f, 0.4f, 0.3f);
+	glm::vec3 boisDiffuseColor = glm::vec3(0.7f, 0.5f, 0.4f);
+	// Matériau Herbe
+    glm::vec3 herbeAmbientColor = glm::vec3(0.7f, 0.35f, 0.12f);
+    glm::vec3 herbeDiffuseColor = glm::vec3(0.85f, 0.45f, 0.18f);
 
     Frustum frustum;
 
@@ -61,9 +77,11 @@ private:
     void worldInput();
     void bindController();
 	// Dessine les éléments du monde
-    void Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader, Shader& cactusShader, int viewportWidth, int viewportHeight, const glm::mat4& view, const glm::vec3& viewPos);
-	// Génère des cactus aléatoires
-    void generateCacti(int count);
+    void Draw(Shader& shader, Shader& phareShader, Shader& wireframeShader, Shader& terrainShader, Shader& defaultShader, int viewportWidth, int viewportHeight, const glm::mat4& view, const glm::vec3& viewPos);
+	// Génère des modèles aléatoires par rapport au terrain
+    void generateModels(std::vector<glm::mat4>& modelMatrices, int count, float minScale, float maxScale);
+	// Rendu des modèles
+	void renderModels(Shader& shader, const Frustum& frustum, const std::vector<Model*>& models, const std::vector<glm::mat4>& modelMatrices, const glm::vec3& ambientColor, const glm::vec3& diffuseColor);
 	// Met à jour la direction de la lumière en fonction du temps
     void updateLightDirection(float deltaTime);
 };

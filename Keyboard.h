@@ -19,13 +19,17 @@ public:
 	bool isRightPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS; }
 
 	bool isEnterPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS; }
-	bool isBackspacePressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS; }
 	bool isEnterReleased(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE; }
+	bool isBackspacePressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS; }
 	bool isBackspaceReleased(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_RELEASE; }
+	bool isHPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS; }
+	bool isHReleased(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_H) == GLFW_RELEASE; }
+
 
 	// Permet d'éviter que la fonction soit true à chaque frame si la touche est pressé
 	bool wasEnterPressed(GLFWwindow* window) const;
 	bool wasBackspacePressed(GLFWwindow* window) const;
+	bool wasHPressed(GLFWwindow* window) const;
 
 	// Retour des inputs propre au déplacement de la voiture
 	float getSteerInput(GLFWwindow* window) const;

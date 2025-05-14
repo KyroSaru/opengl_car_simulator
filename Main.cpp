@@ -48,10 +48,11 @@ int main()
 	// ------------------------------------------
 
 	// Créer un Shader Program avec les Vertex Shader et Fragment Shader spécifiés
-	Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
+	Shader carShader("shaders/car.vert", "shaders/car.frag");
 	Shader wireframeShader("shaders/wireframe.vert", "shaders/wireframe.frag");
 	Shader terrainShader("shaders/terrain.vert", "shaders/terrain.frag");
-	Shader cactusShader("shaders/cactus.vert", "shaders/cactus.frag");
+	Shader defaultShader("shaders/default.vert", "shaders/default.frag");
+	Shader phareShader("shaders/headlight.vert", "shaders/headlight.frag");
 	
 	// Activer le mode de profondeur (Z-buffer/Depth Buffer)
 	glEnable(GL_DEPTH_TEST);
@@ -81,17 +82,17 @@ int main()
 		glfwSetWindowTitle(window, windowTitle.c_str());
 
 		world.updateScene(deltaTime);
-		world.renderScene(shaderProgram, wireframeShader, terrainShader, cactusShader);
+		world.renderScene(carShader, phareShader, wireframeShader, terrainShader, defaultShader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	// Supprime tous les objets créés
-	shaderProgram.Delete();
+	carShader.Delete();
 	wireframeShader.Delete();
 	terrainShader.Delete();
-	cactusShader.Delete();
+	defaultShader.Delete();
 	// Supprime la fenêtre avant la fin du programme
 	glfwDestroyWindow(window);
 	// Termine GLFW

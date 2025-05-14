@@ -4,7 +4,13 @@
 
 World::World(int windowWidth, int windowHeight, GLFWwindow* win)
     : width(windowWidth), height(windowHeight), window(win),
-    keyboard(std::make_shared<Keyboard>()), terrain("models/terrain/heightmap.png", 35.0f), cactus("models/cactus/cactus.gltf"), bois_abandon("models/bois_abandon/bois_abandon.gltf")
+    keyboard(std::make_shared<Keyboard>()), 
+    terrain("models/terrain/heightmap.png", 35.0f), 
+    bois_abandon("models/bois_abandon/bois_abandon.gltf"),
+    cactus("models/cactus/cactus.gltf"), 
+    pierre1("models/pierre/pierre1.gltf"), pierre2("models/pierre/pierre2.gltf"), pierre3("models/pierre/pierre3.gltf"), 
+    bois1("models/bois/bois1.gltf"), bois2("models/bois/bois2.gltf"), bois3("models/bois/bois3.gltf"), 
+    herbe1("models/herbe/herbe1.gltf"), herbe2("models/herbe/herbe2.gltf"), herbe3("models/herbe/herbe3.gltf")
 {
     JoystickManager::init();
 }
@@ -14,8 +20,12 @@ void World::loadModels()
 {
     addPlayer("models/voiture_gltf/voiture.gltf", glm::vec3(0.0f, 2.0f, 0.0f));
 
-    // Génère 50 cactus aléatoires
-    generateCacti(50);
+	// Génères aléatoirement des modèles de cactus, pierres, bois et herbe
+    generateModels(cactusModelMatrices, 50, 1.5f, 3.0f);
+    generateModels(pierreModelMatrices, 60, 0.5f, 2.5f);
+    generateModels(boisModelMatrices, 25, 1.5f, 2.5f);
+    generateModels(herbeModelMatrices, 40, 0.5f, 1.5f);
+
 }
 
 void World::addPlayer(const std::string& modelPath, const glm::vec3& startPosition) {
@@ -50,7 +60,6 @@ void World::worldInput() {
 
             std::cout << "Retrait du joueur n°" << car.getId() + 1 << " de la partie ...\n";
 
-
             // Si la voiture a une manette, on désasigne la manette
             if (car.hasGamepad())
                 car.getGamepad()->unassign();
@@ -58,6 +67,14 @@ void World::worldInput() {
 
             voitures.pop_back();
         }
+    }
+
+    // Phares
+    if (keyboard->wasHPressed(window)) {
+		for (auto& voiture : voitures) {
+			voiture.setHeadlightsOn(!voiture.getHeadlightsOn());
+			std::cout << "Headlights " << (voiture.getHeadlightsOn() ? "ON" : "OFF") << " for player " << voiture.getId() + 1 << std::endl;
+		}
     }
 }
 
@@ -182,7 +199,7 @@ void World::calculateViewport(int playerIndex, int& x, int& y, int& w, int& h) {
     }
 }
 
-void World::renderScene(Shader& shader, Shader& wireframeShader, Shader& terrainShader, Shader& cactusShader)
+void World::renderScene(Shader& shader, Shader& phareShader, Shader& wireframeShader, Shader& terrainShader, Shader& defaultShader)
 {
     // Définit la couleur de fond de la fenêtre (RGBA)
     glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
@@ -201,7 +218,7 @@ void World::renderScene(Shader& shader, Shader& wireframeShader, Shader& terrain
     if (noClip) {
         // [NO CLIP]
         glViewport(0, 0, width, height);
-        Draw(shader, wireframeShader, terrainShader, cactusShader, width, height, noClip->getViewMatrix(), noClip->getPosition());
+        Draw(shader, phareShader, wireframeShader, terrainShader, defaultShader, width, height, noClip->getViewMatrix(), noClip->getPosition());
     }
     else {
         // [3RD PERSON]
@@ -214,14 +231,14 @@ void World::renderScene(Shader& shader, Shader& wireframeShader, Shader& terrain
             glScissor(x, y, w, h);
 
             auto camera = voitures[i].getCamera();
-            Draw(shader, wireframeShader, terrainShader, cactusShader, w, h, camera->getViewMatrix(), camera->getPosition());
+            Draw(shader, phareShader, wireframeShader, terrainShader, defaultShader, w, h, camera->getViewMatrix(), camera->getPosition());
 
             glDisable(GL_SCISSOR_TEST);
         }
     }
 }
 
-void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader, Shader& cactusShader, int viewportWidth, int viewportHeight, const glm::mat4& view, const glm::vec3& viewPos)
+void World::Draw(Shader& shader, Shader& phareShader, Shader& wireframeShader, Shader& terrainShader, Shader& defaultShader, int viewportWidth, int viewportHeight, const glm::mat4& view, const glm::vec3& viewPos)
 {
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)viewportWidth / (float)viewportHeight, 0.1f, 200.0f);
 	// Calcul du frustum à partir de la matrice de proj. et de vue
@@ -231,15 +248,19 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
     shader.Activate();
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
-
+    
     shader.setVec3("lightDir", lightDir);
     shader.setVec3("lightColor", lightColor);
     shader.setVec3("ambientColor", carAmbientColor);
     shader.setVec3("diffuseColor", carDiffuseColor);
 
+    phareShader.Activate();
+    phareShader.setMat4("projection", projection);
+    phareShader.setMat4("view", view);
+
     for (auto& car : voitures) {
         if (car.isVisible(frustum)) {
-            car.Draw(shader);
+            car.Draw(shader, phareShader);
         }
     }
 
@@ -262,8 +283,8 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
     terrainShader.setVec3("viewPos", viewPos);
 
     // Infos Soleil
-    terrainShader.setVec3("lightDir", lightDir);          // Direction du soleil
-    terrainShader.setVec3("lightColor", lightColor);      // Couleur du soleil
+    terrainShader.setVec3("lightDir", lightDir);
+    terrainShader.setVec3("lightColor", lightColor);
 
     glm::mat4 terrainModel = glm::mat4(1.0f);
     terrainModel = glm::translate(terrainModel, glm::vec3(0.0f, -20.0f, 0.0f));
@@ -273,58 +294,75 @@ void World::Draw(Shader& shader, Shader& wireframeShader, Shader& terrainShader,
     // --- [CIEL] ---
     skybox.Draw(view, projection, static_cast<float>(glfwGetTime()));
 
-    // --- [CACTUS] ---
-	cactusShader.Activate();
-	cactusShader.setMat4("projection", projection);
-	cactusShader.setMat4("view", view);
-
-    // Infos Soleil
-    cactusShader.setVec3("lightDir", lightDir);          // Direction du soleil
-    cactusShader.setVec3("lightColor", lightColor);      // Couleur du soleil
-    // Transmet les propriétés du matériau
-    cactusShader.setVec3("ambientColor", cactusAmbientColor);  // Couleur ambiante
-    cactusShader.setVec3("diffuseColor", cactusDiffuseColor);  // Couleur diffuse
-
-    // Dessine chaque cactus
-    for (const auto& model : cactusModelMatrices) {
-        if (cactus.isVisible(frustum, model)) {
-            cactusShader.setMat4("model", model);
-            cactus.Draw(cactusShader);
-        }
-    }
+    // --- [MODELES REAGISSANT AU SOLEIL] ---
+    defaultShader.Activate();
+	defaultShader.setMat4("projection", projection);
+	defaultShader.setMat4("view", view);
+    defaultShader.setVec3("lightDir", lightDir);
+    defaultShader.setVec3("lightColor", lightColor);
+    // Cactus
+    renderModels(defaultShader, frustum, { &cactus }, cactusModelMatrices, cactusAmbientColor, cactusDiffuseColor);
+    // Pierres
+    renderModels(defaultShader, frustum, { &pierre1, &pierre2, &pierre3 }, pierreModelMatrices, pierreAmbientColor, pierreDiffuseColor);
+    // Bois
+    renderModels(defaultShader, frustum, { &bois1, &bois2, &bois3 }, boisModelMatrices, boisAmbientColor, boisDiffuseColor);
+    // Herbes
+    renderModels(defaultShader, frustum, { &herbe1, &herbe2, &herbe3 }, herbeModelMatrices, herbeAmbientColor, herbeDiffuseColor);
 
     // -- [STRUCTURE ABANDONNEE] ---
-    glm::mat4 boisModel = glm::mat4(1.0f);
-    boisModel = glm::translate(boisModel, glm::vec3(0.0f, -6.0f, 4.0f));
-    boisModel = glm::rotate(boisModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    boisModel = glm::scale(boisModel, glm::vec3(1.5f, 1.5f, 1.5f));
-    cactusShader.setMat4("model", boisModel);
-    bois_abandon.Draw(cactusShader);
+    glm::mat4 structModel = glm::mat4(1.0f);
+    structModel = glm::translate(structModel, glm::vec3(0.0f, -6.0f, 4.0f));
+    structModel = glm::rotate(structModel, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    structModel = glm::scale(structModel, glm::vec3(1.5f, 1.5f, 1.5f));
+    defaultShader.setMat4("model", structModel);
+    bois_abandon.Draw(defaultShader);
 }
 
-void World::generateCacti(int count) {
+// ---------------------------------------------
+
+void World::generateModels(std::vector<glm::mat4>& modelMatrices, int count, float minScale, float maxScale) {
     for (int i = 0; i < count; ++i) {
         // Génère des coordonnées aléatoires (x, z)
         float x = static_cast<float>(rand() % static_cast<int>(terrain.getWidth() * terrain.getScale())) - terrain.getWidth() * terrain.getScale() / 2.0f;
         float z = static_cast<float>(rand() % static_cast<int>(terrain.getHeight() * terrain.getScale())) - terrain.getHeight() * terrain.getScale() / 2.0f;
-
         // Récupère la hauteur du terrain à cette position
         float y = terrain.getHeightAt(x, z);
 
         // Génère une échelle et une rotation aléatoires
-        float scale = 1.5f + static_cast<float>(rand() % 150) / 100.0f; // Entre 1.5 et 3.0
-        float rotation = static_cast<float>(rand() % 360); // Entre 0 et 360 degrés
+        float scale = minScale + static_cast<float>(rand()) / RAND_MAX * (maxScale - minScale);
+        float rotation = static_cast<float>(rand() % 360);
 
-        // Matrice Model des cactus
+        // Matrice Model du modèle
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(x, y - 20.0f, z));
         model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(scale));
 
         // Stocke la matrice modèle
-        cactusModelMatrices.push_back(model);
+        modelMatrices.push_back(model);
     }
 }
+
+void World::renderModels(Shader& shader, const Frustum& frustum, const std::vector<Model*>& models, const std::vector<glm::mat4>& modelMatrices, const glm::vec3& ambientColor, const glm::vec3& diffuseColor)
+{
+    shader.Activate();
+
+    // Matériau du modèle
+    shader.setVec3("ambientColor", ambientColor);
+	shader.setVec3("diffuseColor", diffuseColor);
+
+	for (size_t i = 0; i < modelMatrices.size(); ++i) {
+		Model* model = models[i % models.size()];
+
+		// Vérifie si le modèle est visible dans le frustum
+		if (model->isVisible(frustum, modelMatrices[i])) {
+			shader.setMat4("model", modelMatrices[i]);
+			model->Draw(shader);
+		}
+	}
+}
+
+// ---------------------------------------------
 
 void World::updateLightDirection(float deltaTime) 
 {
