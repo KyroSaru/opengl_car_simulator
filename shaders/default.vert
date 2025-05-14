@@ -7,7 +7,7 @@ layout (location = 1) in vec3 aNormal;
 // Coordonnées de texture
 layout (location = 2) in vec2 aTexCoords;
 
-// En sortie pour le Fragment Shader
+// En sortie pour le Frag Shader
 out vec3 FragPos;
 out flat vec3 Normal;
 out vec2 TexCoords;

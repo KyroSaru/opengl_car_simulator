@@ -12,7 +12,7 @@ uniform vec3 lightColor;
 uniform vec3 ambientColor;
 uniform vec3 diffuseColor;
 
-// Texture du cactus
+// Texture du modèle
 uniform sampler2D diffuse0;
 
 void main()
