@@ -1,21 +1,22 @@
 #version 420 core
 
-out vec4 FragColor;
+// En sortie, couleur du fragment
+out vec4 fragColor;
 
-in vec3 FragPos;
+// En entrée du Frag Shader (position, normal, coord. de texture du fragment)
+in vec3 fragPos;
 in flat vec3 Normal;
-in vec2 TexCoords;
+in vec2 texCoords;
 
-// Texture des phares
+// Texture et couleur des phares
 uniform sampler2D diffuse0;
-// Couleur des pahres
 uniform vec3 headlightColor;
 
 void main()
 {
-    // Couleur de base (texture)
-    vec4 texColor = texture(diffuse0, TexCoords);
+    // Couleur de base (de la texture)
+    vec4 texColor = texture(diffuse0, texCoords);
 
-
-    FragColor = vec4(texColor.rgb * headlightColor, texColor.a);
+    // En sortie, on applique la couleur des phares à celle de la texture
+    fragColor = vec4(texColor.rgb * headlightColor, texColor.a);
 }

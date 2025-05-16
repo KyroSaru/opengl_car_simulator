@@ -10,42 +10,50 @@ int Gamepad::jid() const { return _jid; }
 float Gamepad::getRightTrigger() const {
 	int axisCount;
 	const float* axes = glfwGetJoystickAxes(_jid, &axisCount);
+
 	if (axisCount > GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) {
 		float val = axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]; // valeur dans [-1, 1]
 		return (val + 1.0f) * 0.5f; // valeur dans [0, 1]
 	}
+
 	return 0.0f;
 }
 
 float Gamepad::getLeftTrigger() const {
 	int axisCount;
 	const float* axes = glfwGetJoystickAxes(_jid, &axisCount);
+
 	if (axisCount > GLFW_GAMEPAD_AXIS_LEFT_TRIGGER) {
 		float val = axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]; 
 		return (val + 1.0f) * 0.5f; 
 	}
+
 	return 0.0f;
 }
 
 float Gamepad::getLeftStickX() const {
 	int axisCount;
 	const float* axes = glfwGetJoystickAxes(_jid, &axisCount);
+
 	if (axisCount > GLFW_GAMEPAD_AXIS_LEFT_X) {
 		float val = axes[GLFW_GAMEPAD_AXIS_LEFT_X]; // [-1, 1]
 		float deadzone = 0.2f;
 		return (std::abs(val) > deadzone) ? -val : 0.0f; // valeur absolue obligatoire pour la partie gauche [-1, 0[ | on a mis un - devant (peut-être pas normal)
 	}
+
 	return 0.0f;
 }
 
 float Gamepad::getRightStickX() const {
 	int axisCount;
 	const float* axes = glfwGetJoystickAxes(_jid, &axisCount);
+
 	if (axisCount > GLFW_GAMEPAD_AXIS_RIGHT_X) {
 		float val = axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
 		float deadzone = 0.2f;
 		return (std::abs(val) > deadzone) ? val : 0.0f; 
 	}
+
 	return 0.0f;
 }
 
@@ -58,4 +66,20 @@ float Gamepad::getRightStickY() const {
 		return (std::abs(val) > deadzone) ? val : 0.0f; 
 	}
 	return 0.0f;
+}
+
+bool Gamepad::isYPressed() const {
+	int buttonCount;
+	const unsigned char* buttons = glfwGetJoystickButtons(_jid, &buttonCount);
+
+	if (buttonCount > GLFW_GAMEPAD_BUTTON_Y) {
+		bool currentYPressed = buttons[GLFW_GAMEPAD_BUTTON_Y] == GLFW_PRESS;
+
+		// Vérifie si le bouton Y a été pressé & met à jour le flag
+		bool wasPressed = !lastYPressed && currentYPressed; 
+		lastYPressed = currentYPressed;
+
+		return wasPressed;
+	}
+	return false;
 }

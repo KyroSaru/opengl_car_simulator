@@ -202,6 +202,13 @@ void Camera::followTarget(const glm::vec3& targetPosition, const glm::vec3& targ
 			// Positionne la caméra autour de la voiture
 			Position = targetPosition + offset;
 
+			// Ajuste la position de la caméra par rapport au terrain
+			float terrainHeight = terrain.getHeightAt(Position.x, Position.z);
+			if (Position.y < terrainHeight + 2.0f) // offset de 2 pour être un peu au dessus du terrain
+			{
+				Position.y = terrainHeight + 2.0f;
+			}
+
 			// Oriente la caméra vers la voiture
 			Orientation = glm::normalize(targetPosition - Position);
 		}

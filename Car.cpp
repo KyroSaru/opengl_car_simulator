@@ -11,11 +11,11 @@ Car::Car(const std::string& modelPath)
     body = Model(modelPath, "Body");
 
     // Charge phares, retro, volant et fenêtres
-    phares = Model(modelPath, "Phares");
-    retro_miroir_G = Model(modelPath, "Retro_Miroir_G");
-    retro_miroir_D = Model(modelPath, "Retro_Miroir_D");
-    volant = Model(modelPath, "Volant");
-    fenetres = Model(modelPath, "Fenetres");
+    headlights = Model(modelPath, "Phares");
+    leftRearviewMirror = Model(modelPath, "Retro_Miroir_G");
+    rightRearviewMirror = Model(modelPath, "Retro_Miroir_D");
+    steeringWheel = Model(modelPath, "Volant");
+    windows = Model(modelPath, "Fenetres");
 
     // Charge les roues
     wheels[0] = Model(modelPath, "Roue_ARD");
@@ -26,8 +26,8 @@ Car::Car(const std::string& modelPath)
     // Initialise les positions locales des roues (calculer via blender + screen)
     wheelOffsets[0] = glm::vec3(1.375f, 0.572f, 3.141f);
     wheelOffsets[1] = glm::vec3(-1.375f, 0.572f, 3.141f);
-    wheelOffsets[2] = glm::vec3(1.375f, 0.572f, -1.9615f); // A AJUSTER (car on dirait qu'elle va partir)
-    wheelOffsets[3] = glm::vec3(-1.375f, 0.572f, -1.9615f);
+    wheelOffsets[2] = glm::vec3(1.375f, 0.572f, -1.9621f); // A AJUSTER (car on dirait qu'elle va partir)
+    wheelOffsets[3] = glm::vec3(-1.375f, 0.572f, -1.9604f);
 
     // Ajustement manuel des bounding box pour épouser correctement les roues (pour collision plus tard?)
     wheels[0].boundingBox.adjustMax(1.2f, 0.0f, 2.5f);
@@ -36,8 +36,10 @@ Car::Car(const std::string& modelPath)
     wheels[2].boundingBox.adjustMax(1.2f, 0.0f, 0.0f);
     wheels[2].boundingBox.adjustMin(0.0f, 0.0f, 1.315f);
     wheels[3].boundingBox.adjustMin(1.2f, 0.0f, 1.315f);
-}
 
+	// Initialise la position local du volant (calculer dans Blender)
+    steeringWheelOffset = glm::vec3(0.957f, 0.7f, 0.0f);
+}
 
 glm::vec3 Car::getPosition() const 
 {
@@ -143,27 +145,43 @@ bool Car::isVisible(const Frustum& frustum) const {
     return false;
 }
 
-
 void Car::Draw(Shader& carShader, Shader& phareShader)
 {
-    // Transfos du véhicule (sauf les roues)
+    // Transfos du corps de la voiture
     glm::mat4 body_model = getBodyModelMatrix();
+    // Transfos de la voiture
+    glm::mat4 init_car_model = getCarModelMatrix();
+
     // std::cout << "Car Model Matrix: " << glm::to_string(body_model) << std::endl;
     carShader.Activate();
+
+    // --- [VOLANT] ---
+    glm::mat4 volant_model = body_model;
+    {
+        // Translation au centre du volant
+        volant_model = glm::translate(volant_model, steeringWheelOffset);
+        // Applique l'angle de braquage au volant
+        volant_model = glm::rotate(volant_model, glm::radians(-steeringAngle * 3.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        // Retour au centre original
+        volant_model = glm::translate(volant_model, -steeringWheelOffset);
+    }
+    carShader.setMat4("model", volant_model);
+    steeringWheel.Draw(carShader);
+
+    // --- [CORPS/RETROS/FENETRES] ---
     carShader.setMat4("model", body_model);
     body.Draw(carShader);
-    retro_miroir_G.Draw(carShader);
-    retro_miroir_D.Draw(carShader);
-    volant.Draw(carShader);
-    fenetres.Draw(carShader);
+    leftRearviewMirror.Draw(carShader);
+    rightRearviewMirror.Draw(carShader);
+    windows.Draw(carShader);
 
-    // Phares
+    // --- [PHARES] ---
     phareShader.Activate();
     phareShader.setMat4("model", body_model);
     phareShader.setVec3("headlightColor", headlightsOn ? headlightColorOn : headlightColorOff);
-    phares.Draw(phareShader);
+    headlights.Draw(phareShader);
 
-    glm::mat4 init_car_model = getCarModelMatrix();
+    // --- [ROUES] ---
     // Récupérer les angle du corps (angles.x = pitch, angles.y = roll)
     glm::vec2 bodyAngles = calculateBodyAngles();
 

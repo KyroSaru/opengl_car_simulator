@@ -27,4 +27,5 @@ models/*
 !models/pierre
 !models/bois
 !models/herbe
+!models/crane
 !models/bois_abandon

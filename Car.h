@@ -12,6 +12,7 @@
 class Car
 {
 public:
+	// Constructeur
 	Car(const std::string& modelPath);
 
 	// Getters/Setters
@@ -45,20 +46,20 @@ public:
 
 	// -----------------------
 
-	// Fonction manette
+	// Fonctions manette
 	std::shared_ptr<Gamepad> getGamepad() { return _gamepad; }
 	void setGamepad(std::shared_ptr<Gamepad> g) { _gamepad = g; }
 	bool hasGamepad() const { return _gamepad != nullptr; }
-	// Fonction clavier
+	// Fonctions clavier
 	void setKeyboard(std::shared_ptr<Keyboard> k) { _keyboard = k; }
 	bool hasKeyboard() const { return _keyboard != nullptr; }
-	// Fonction caméra
+	// Fonctions caméra
 	std::shared_ptr<Camera> getCamera() { return camera; }
 	void setCamera(std::shared_ptr<Camera> cam) { camera = cam; }
 
 	// -----------------------
 
-	// Gére la physique de la voiture avec des contrôles
+	// Gére la physique de la voiture
 	void updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terrain);
 	// Gestion des collisions avec les autres voitures
 	bool checkCollision(const Car& other) const;
@@ -70,10 +71,10 @@ private:
 	// Séparation du véhicule en partie (pour animation des roues et du corps séparée)
 	Model body;
 	Model wheels[4];
-	Model fenetres;
-	Model phares;
-	Model retro_miroir_G, retro_miroir_D;
-	Model volant;
+	Model windows;
+	Model headlights;
+	Model leftRearviewMirror, rightRearviewMirror;
+	Model steeringWheel;
 
 	// Positions locales des roues par rapport au centre de la voiture
 	glm::vec3 wheelOffsets[4];
@@ -81,6 +82,9 @@ private:
 	float wheelHeights[4];
 	// Distance constante entre le corps et les roues
 	const float bodyToWheelDistance = 0.54f; 
+
+	// Positions locales du volant par rapport au centre de la voiture
+	glm::vec3 steeringWheelOffset;
 
 	// Phares
 	bool headlightsOn = false;
@@ -93,6 +97,8 @@ private:
 	std::shared_ptr<Keyboard> _keyboard = nullptr;
 	// Gestion de la caméra
 	std::shared_ptr<Camera> camera = nullptr;
+
+	// -----------------------------
 	
 	// [ATTRIBUTS PHYSIQUE]
 	glm::vec3 position;

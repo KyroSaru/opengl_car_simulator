@@ -1,5 +1,4 @@
 #include"Skybox.h"
-#include <glm/glm.hpp>
 
 float cubemapsVertices[] = {
 	-1.0f, -1.0f,  1.0f, // Coin avant-bas gauche  (0)
@@ -12,7 +11,7 @@ float cubemapsVertices[] = {
 	-1.0f,  1.0f, -1.0f  // Coin arrière-haut gauche (7)
 };
 
-// ordre cw pour afficher les faces intérieurs du cube
+// En clockwise pour afficher l'intérieur de la skybox
 unsigned int cubemapsIndices[] =
 {
 	// face droite, +X
@@ -36,42 +35,107 @@ unsigned int cubemapsIndices[] =
 };
 
 Skybox::Skybox()
-	: faces {
-	"textures/skybox/blueSky/left.png",
-	"textures/skybox/blueSky/right.png",
-	"textures/skybox/blueSky/up.png",
-	"textures/skybox/blueSky/down.png",
-	"textures/skybox/blueSky/front.png",
-	"textures/skybox/blueSky/back.png",
+	: dayFaces {
+	"textures/skybox/jour/left.png",
+	"textures/skybox/jour/right.png",
+	"textures/skybox/jour/up.png",
+	"textures/skybox/jour/down.png",
+	"textures/skybox/jour/front.png",
+	"textures/skybox/jour/back.png",
+	},
+	nightFaces {
+	"textures/skybox/nuit/left.png",
+	"textures/skybox/nuit/right.png",
+	"textures/skybox/nuit/up.png",
+	"textures/skybox/nuit/down.png",
+	"textures/skybox/nuit/front.png",
+	"textures/skybox/nuit/back.png",
 	}, 
-	shader("shaders/skybox.vert", "shaders/skybox.frag")
+	skyboxShader("shaders/skybox.vert", "shaders/skybox.frag")
 { 
-	// VAO, VBO, EBO
+	// Génération des tampons et du VAO
 	glGenVertexArrays(1, &skyboxVao);
 	glGenBuffers(1, &skyboxVbo);
 	glGenBuffers(1, &skyboxEbo);
-
+	
+	// Lie le VAO et les tampons au contexte OpenGL
 	glBindVertexArray(skyboxVao);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubemapsVertices), &cubemapsVertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skyboxEbo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubemapsIndices), &cubemapsIndices, GL_STATIC_DRAW);
 
+	// Lie les attributs des tampons au VAO
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	// TEXTURE
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+	// Gestion des textures avec stb_image
+	glGenTextures(1, &dayTextureID);
+	glGenTextures(1, &nightTextureID);
+
+	// Charge les 2 cubemaps
+	loadCubeMap(dayTextureID, dayFaces);
+	loadCubeMap(nightTextureID, nightFaces);
+
+	// Lisse les bords de la skybox
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+}
+
+void Skybox::Draw(const glm::mat4& view, const glm::mat4 projection, float time)
+{
+	// Tout ce qu'il y a entre ces brackets est toujours derrière les autres objets (la skybox)
+	glDepthFunc(GL_LEQUAL);
+	{
+		skyboxShader.Activate();
+		
+		// Active et lie la texture JOUR (unité 0)
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, dayTextureID);
+		// Active et lie la texture NUIT (unité 1)
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, nightTextureID);
+
+		skyboxShader.setInt("skyTextureDay", 0);
+		skyboxShader.setInt("skyTextureNight", 1);
+
+		// Transition entre le jour et la nuit
+		skyboxShader.setFloat("blendValue", blendValue);
+
+		// Supprime la translation de la matrice de vue (le ciel ne doit pas bouger avec la caméra)
+		glm::mat4 viewNoTranslation = glm::mat4(glm::mat3(view));
+
+		// Ajoute une rotation pour simuler le mouvement du ciel
+		float rotationSpeed = 0.01f;
+		glm::mat4 rotation = glm::rotate(viewNoTranslation, time * rotationSpeed, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		skyboxShader.setMat4("view", rotation);
+		skyboxShader.setMat4("projection", projection);
+
+		// Lie le VAO et dessine la skybox
+		glBindVertexArray(skyboxVao);
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+	}
+	glDepthFunc(GL_LESS);
+}
+
+// --------------------------
+
+void Skybox::loadCubeMap(GLuint textureID, const std::string faces[6])
+{
+	// Lie la texture
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	// Gestion de l'interpolation des pixels de la texture (ici, pas des carrés mais lissés)
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // x
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // y 
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE); // z
+	// Gestion des coord. de textures si on dépasse les bords de la texture (ici, couleur de la texture sur le bord)
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // <=> x
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // <=> y 
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE); // <=> z
 
 	for (unsigned int i = 0; i < 6; i++)
 	{
@@ -80,8 +144,7 @@ Skybox::Skybox()
 		if (data)
 		{
 			stbi_set_flip_vertically_on_load(false);
-			glTexImage2D
-			(
+			glTexImage2D(
 				GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 				0,
 				GL_RGB,
@@ -100,30 +163,4 @@ Skybox::Skybox()
 			stbi_image_free(data);
 		}
 	}
-}
-
-void Skybox::Draw(const glm::mat4& view, const glm::mat4 projection, float time)
-{
-	glDepthFunc(GL_LEQUAL); // derrière 
-
-	shader.Activate();
-	shader.setInt("skyTexture", 0);
-
-	// Supprime la translation de la matrice de vue
-	glm::mat4 viewNoTranslation = glm::mat4(glm::mat3(view));
-
-	// Ajoute une rotation pour simuler le mouvement du ciel
-	float rotationSpeed = 0.01f;
-	glm::mat4 rotation = glm::rotate(viewNoTranslation, time * rotationSpeed, glm::vec3(0.0f, 1.0f, 0.0f));
-
-	shader.setMat4("view", rotation);
-	shader.setMat4("projection", projection);
-
-	glBindVertexArray(skyboxVao);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	glDepthFunc(GL_LESS);
 }

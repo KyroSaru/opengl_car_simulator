@@ -4,9 +4,8 @@
 #include "Shader.h"
 #include "VAO.h"
 #include "EBO.h"
+
 #include <stb/stb_image.h>
-#include <string>
-#include <vector>
 #include <glm/glm.hpp>
 
 class Terrain
@@ -15,6 +14,7 @@ public:
     // Constructeur de terrain
     Terrain(const std::string& heightMapPath, float maxHeight);
 
+    // Getters
 	int getWidth() const { return width; }
 	int getHeight() const { return height; }
 	float getScale() const { return scale; }
@@ -46,7 +46,7 @@ private:
 
     // -------------------------------
 
-	// Génère le terrain à partir d'une height map
+	// Génère le terrain en précisant le chemin d'une height map, une hauteur max. et un pas
     void generateFromHeightMap(const std::string& heightMapPath, float maxHeight, int step);
 
     // Calcule les normales du terrain

@@ -22,6 +22,13 @@ void JoystickManager::init()
 
 void JoystickManager::addGamepad(int jid) {
 	if (glfwJoystickIsGamepad(jid)) {
+		// Vérifie si le gamepad déjà présent dans la liste
+		for (const auto& g : gamepads) {
+			if (g->jid() == jid) {
+				return;
+			}
+		}
+
 		auto gamepad = std::make_shared<Gamepad>(jid);
 		gamepads.push_back(gamepad);
 		std::cout << "Le Gamepad n°" << jid + 1 << "a été ajouté à la listes de gamepads utilisables ! Nom du Gamepad : " << glfwGetJoystickName(jid) << std::endl;

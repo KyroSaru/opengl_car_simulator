@@ -1,8 +1,10 @@
 #version 420 core
 
-out vec4 FragColor;
+// En sortie, couleur du fragment
+out vec4 fragColor;
 
 void main()
 {
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0); // Couleur blanche
+    // Couleur blanche
+    fragColor = vec4(1.0, 1.0, 1.0, 1.0); 
 }

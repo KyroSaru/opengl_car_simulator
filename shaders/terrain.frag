@@ -7,6 +7,7 @@ in vec2 FragTexCoords;       // Coord. de texture
 out vec4 FragColor;      // Couleur finale du fragment
 
 // Lumière directionnelle
+uniform float lightIntensity; // Intensité de la lumière
 uniform vec3 lightDir;   // Direction de la lumière
 uniform vec3 lightColor; // Couleur de la lumière
 
@@ -21,11 +22,11 @@ void main()
     vec3 lightDirection = normalize(lightDir);
 
     // Composante ambiante
-    vec3 ambient = ambientColor;
+    vec3 ambient = lightIntensity * ambientColor;
 
     // Calcul de la lumière diffuse
     float diff = max(dot(norm, -lightDirection), 0.0);
-    vec3 diffuse = diff * lightColor * diffuseColor;
+    vec3 diffuse = lightIntensity * diff * lightColor * diffuseColor;
 
     // Couleur finale
     vec3 result = ambient + diffuse;

@@ -1,7 +1,7 @@
 #include "Terrain.h"
-#include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
 #include <iostream>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
 
 // Constructeur
 Terrain::Terrain(const std::string& heightMapPath, float maxHeight)
@@ -38,7 +38,7 @@ void Terrain::generateFromHeightMap(const std::string& heightMapPath, float maxH
 
             Vertex vertex;
             vertex.position = glm::vec3(x * scale - offsetX, heightValue, z * scale - offsetZ);
-            vertex.normal = glm::vec3(0.0f, 0.0f, 0.0f); // Normales par défaut (on les recalcule par la suite)
+            vertex.normal = glm::vec3(0.0f, 0.0f, 0.0f); // Normales par défaut (on les recalcule plus bas)
             vertex.texCoords = glm::vec2(x / (float)width, z / (float)height);
             vertices.push_back(vertex);
         }

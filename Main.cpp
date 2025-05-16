@@ -43,16 +43,16 @@ int main()
 
 	// Définit la zone de rendu (viewport) de la fenêtre (de x = 0, y = 0 à x = 800, y = 600)
 	// Ici, on prend toute la fenêtre, mais on pourrait ne prendre qu'une partie
-	glViewport(0, 0, width, height); // zone de rendu
+	// glViewport(0, 0, width, height); // zone de rendu
 
 	// ------------------------------------------
 
-	// Créer un Shader Program avec les Vertex Shader et Fragment Shader spécifiés
-	Shader carShader("shaders/car.vert", "shaders/car.frag");
-	Shader wireframeShader("shaders/wireframe.vert", "shaders/wireframe.frag");
-	Shader terrainShader("shaders/terrain.vert", "shaders/terrain.frag");
+	// Créer les Shader Program avec les Vertex Shader et Fragment Shader spécifiés
 	Shader defaultShader("shaders/default.vert", "shaders/default.frag");
-	Shader phareShader("shaders/headlight.vert", "shaders/headlight.frag");
+	Shader terrainShader("shaders/terrain.vert", "shaders/terrain.frag");
+	Shader carShader("shaders/default.vert", "shaders/car.frag");
+	Shader headlightShader("shaders/default.vert", "shaders/headlight.frag");
+	Shader wireframeShader("shaders/default.vert", "shaders/wireframe.frag");
 	
 	// Activer le mode de profondeur (Z-buffer/Depth Buffer)
 	glEnable(GL_DEPTH_TEST);
@@ -65,10 +65,11 @@ int main()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
 
+	// Instancie le monde et charge les modèles 3D
 	World world(width, height, window);
 	world.loadModels();
 
-	// Init la dernière frame avant le rendu
+	// Init. la dernière frame avant le rendu
 	float lastFrame = static_cast<float>(glfwGetTime());
 
 	while (!glfwWindowShouldClose(window))
@@ -78,24 +79,28 @@ int main()
 		float deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		// Met à jour le titre avec les FPS affichés
 		std::string windowTitle = "Simulateur Automobile - FPS: " + std::to_string(static_cast<int>(calculateFPS()));
 		glfwSetWindowTitle(window, windowTitle.c_str());
 
 		world.updateScene(deltaTime);
-		world.renderScene(carShader, phareShader, wireframeShader, terrainShader, defaultShader);
+		world.renderScene(carShader, headlightShader, wireframeShader, terrainShader, defaultShader);
 
+		// Double Buffering donc swap des tampons avant/arrière et Gestion des inputs
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	// Supprime tous les objets créés
-	carShader.Delete();
-	wireframeShader.Delete();
-	terrainShader.Delete();
 	defaultShader.Delete();
+	terrainShader.Delete();
+	carShader.Delete();
+	headlightShader.Delete();
+	wireframeShader.Delete();
+	
 	// Supprime la fenêtre avant la fin du programme
 	glfwDestroyWindow(window);
-	// Termine GLFW
+	// Termine GLFW proprement
 	glfwTerminate();
 	return 0;
 }
