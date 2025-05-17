@@ -44,6 +44,7 @@ int main()
 	// Définit la zone de rendu (viewport) de la fenêtre (de x = 0, y = 0 à x = 800, y = 600)
 	// Ici, on prend toute la fenêtre, mais on pourrait ne prendre qu'une partie
 	// glViewport(0, 0, width, height); // zone de rendu
+	// Gérer dans World.cpp car gestion multijoueur (split screen)
 
 	// ------------------------------------------
 
@@ -69,6 +70,9 @@ int main()
 	World world(width, height, window);
 	world.loadModels();
 
+	// Ne pas prendre en compte le DPI, accél. Windows...
+	glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+
 	// Init. la dernière frame avant le rendu
 	float lastFrame = static_cast<float>(glfwGetTime());
 
@@ -83,8 +87,9 @@ int main()
 		std::string windowTitle = "Simulateur Automobile - FPS: " + std::to_string(static_cast<int>(calculateFPS()));
 		glfwSetWindowTitle(window, windowTitle.c_str());
 
+		// Met à jour et fait le rendu de la scène
 		world.updateScene(deltaTime);
-		world.renderScene(carShader, headlightShader, wireframeShader, terrainShader, defaultShader);
+		world.renderScene(defaultShader, terrainShader, carShader, headlightShader, wireframeShader);
 
 		// Double Buffering donc swap des tampons avant/arrière et Gestion des inputs
 		glfwSwapBuffers(window);

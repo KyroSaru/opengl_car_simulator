@@ -1,22 +1,25 @@
 #version 420 core
 
-layout (location = 0) in vec3 aPos;       // Position du vertex
-layout (location = 1) in vec3 aNormal;    // Normale du vertex
-layout (location = 2) in vec2 aTexCoords; // Coord. de texture
+// Positions
+layout (location = 0) in vec3 aPos;
+// Coord. des normales
+layout (location = 1) in vec3 aNormal;
 
-uniform mat4 model;       // Matrice de transfo. du modèle
-uniform mat4 view;        // Matrice de vue
-uniform mat4 projection;  // Matrice de proj.
+// En sortie pour le Frag Shader (position, normal, coord. de texture du fragment)
+out vec3 fragPos;
+out flat vec3 Normal;
 
-out vec3 FragPos;         // Position du fragment dans l'espace monde
-out flat vec3 FragNormal;          // Normale interpolée
-out vec2 FragTexCoords;       // Coord. de texture
+// Matrice modèle, vue et projection des modèles
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-    FragPos = vec3(model * vec4(aPos, 1.0));
-    FragNormal = mat3(transpose(inverse(model))) * aNormal; // Transforme la normale pour éviter les déformations (ex: rotation, homothétie)
-    FragTexCoords = aTexCoords; // Transmet les coord. de texture
-
-    gl_Position = projection * view * vec4(FragPos, 1.0); // Pos. finale
+	fragPos = vec3(model * vec4(aPos, 1.0));
+	// On multiplie par la matrice inverse transposée pour éviter les déformations des normales (ex: rotation, homothétie)
+	Normal = mat3(transpose(inverse(model))) * aNormal;
+	
+	// Position de tous les vertices (en prenant en compte les transformations et la caméra)
+	gl_Position = projection * view * model * vec4(aPos, 1.0);
 }

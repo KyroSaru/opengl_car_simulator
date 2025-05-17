@@ -205,10 +205,12 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 
 void Model::calculateBoundingBox() {
 	boundingBox = BoundingBox();
+	collisionBox = BoundingBox();
 
 	for (const auto& mesh : meshes) {
 		for (const auto& vertex : mesh.vertices) {
 			boundingBox.update(vertex.position);
+			collisionBox.update(vertex.position);
 		}
 	}
 }

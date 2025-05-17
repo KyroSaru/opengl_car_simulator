@@ -29,13 +29,15 @@ Car::Car(const std::string& modelPath)
     wheelOffsets[2] = glm::vec3(1.375f, 0.572f, -1.9621f); // A AJUSTER (car on dirait qu'elle va partir)
     wheelOffsets[3] = glm::vec3(-1.375f, 0.572f, -1.9604f);
 
-    // Ajustement manuel des bounding box pour épouser correctement les roues (pour collision plus tard?)
-    wheels[0].boundingBox.adjustMax(1.2f, 0.0f, 2.5f);
-    wheels[1].boundingBox.adjustMax(0.0f, 0.0f, 2.5f);
-    wheels[1].boundingBox.adjustMin(1.2f, 0.0f, 0.0f);
-    wheels[2].boundingBox.adjustMax(1.2f, 0.0f, 0.0f);
-    wheels[2].boundingBox.adjustMin(0.0f, 0.0f, 1.315f);
-    wheels[3].boundingBox.adjustMin(1.2f, 0.0f, 1.315f);
+    // Ajustement manuel des collision box
+    body.collisionBox.adjustMin(0.35f, 0.0f, 0.2f);
+    body.collisionBox.adjustMax(0.35f, 1.2f, 0.0f);
+    wheels[0].collisionBox.adjustMax(1.2f, 0.0f, 2.5f);
+    wheels[1].collisionBox.adjustMax(0.0f, 0.0f, 2.5f);
+    wheels[1].collisionBox.adjustMin(1.2f, 0.0f, 0.0f);
+    wheels[2].collisionBox.adjustMax(1.2f, 0.0f, 0.0f);
+    wheels[2].collisionBox.adjustMin(0.0f, 0.0f, 1.315f);
+    wheels[3].collisionBox.adjustMin(1.2f, 0.0f, 1.315f);
 
 	// Initialise la position local du volant (calculer dans Blender)
     steeringWheelOffset = glm::vec3(0.957f, 0.7f, 0.0f);
@@ -225,7 +227,7 @@ void Car::DrawWireframes(Shader& wireframeShader, const glm::mat4& view, const g
     // Dessine la bounding box du corps
     glm::mat4 body_model = getBodyModelMatrix();
     wireframeShader.setMat4("model", body_model);
-    body.boundingBox.drawWireframe(wireframeShader);
+    body.collisionBox.drawWireframe(wireframeShader);
 
     for (int i = 0; i < 4; i++)
     {
@@ -241,13 +243,13 @@ void Car::DrawWireframes(Shader& wireframeShader, const glm::mat4& view, const g
 
         // Dessine les bounding boxes des roues
         wireframeShader.setMat4("model", wheel_model);
-        wheels[i].boundingBox.drawWireframe(wireframeShader);
+        wheels[i].collisionBox.drawWireframe(wireframeShader);
     }
 }
 
 // -----------------------------------------
 
-void Car::updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terrain)
+void Car::updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terrain, const std::vector<Car>& allCars, const std::vector<BoundingBox>& staticObstacles)
 {
     // [GESTION TERRAIN COLLISION]
     // Constante pour l'interpolation (plus petite = plus fluide)
@@ -347,44 +349,99 @@ void Car::updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terr
     if (std::abs(currentSpeed) > 0.001f)
     {
         float steeringRad = glm::radians(steeringAngle);
-        // Angle de braquage quasi nulle, on va juste tout droit
-        if (std::abs(steeringAngle) < 0.01f)
-        {
-            position += direction * distance;
+
+        // Approximation du rayon de la courbe par rapport à notre angle de braquage nous permettant de trouver notre vitesse angulaire (angle nécessaire pour tourner correctement à notre vitesse)
+        float turnRadius = 4.0f / glm::tan(steeringRad); // 4.0f : longueur entre les essieux (déterminé sur approximativ. sur blender à 6.0f mais baissé un peu parce qu'on peut modifier les valeurs!)
+        float angularVelocity = (currentSpeed / turnRadius) * deltaTime;
+        // On applique la rotation à notre direction et on avance dans la nouvelle direction
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angularVelocity, glm::vec3(0.0f, 1.0f, 0.0f));
+        direction = glm::normalize(glm::vec3(rotation * glm::vec4(direction, 0.0f)));
+
+        // Calcul de la nouvelle position potentielle
+        glm::vec3 newPosition = position + direction * distance;
+
+        // Vérifie la collision à la nouvelle position
+        if (!wouldCollideAt(newPosition, allCars, staticObstacles, id)) {
+            position = newPosition;
         }
-        else
-        {
-            // Approximation du rayon de la courbe par rapport à notre angle de braquage nous permettant de trouver notre vitesse angulaire (angle nécessaire pour tourner correctement à notre vitesse)
-            float turnRadius = 4.0f / glm::tan(steeringRad); // 4.0f : longueur entre les essieux (déterminé sur approximativ. sur blender à 6.0f mais baissé un peu parce qu'on peut modifier les valeurs!)
-            float angularVelocity = (currentSpeed / turnRadius) * deltaTime;
-            // On applique la rotation à notre direction et on avance dans la nouvelle direction
-            glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angularVelocity, glm::vec3(0.0f, 1.0f, 0.0f));
-            direction = glm::normalize(glm::vec3(rotation * glm::vec4(direction, 0.0f)));
-            position += direction * distance;
+        // Collision détectée : effet de bumper
+        else  {
+            // Calcul de la direction du mouvement
+            glm::vec3 moveDir = glm::normalize(direction * currentSpeed);
+
+            // Recherche de la normale de contact avec la box
+            glm::vec3 contactNormal(0.0f, 0.0f, 0.0f);
+            // Flag pour savoir si on a trouvé une collision avec un obstacle (voiture/obstacle statique)
+            bool found = false;
+
+            // Collision avec une autre voiture
+            for (const auto& car : allCars) {
+                if (car.getId() == id) continue;
+                if (BoundingBox::intersectsOBB(getBodyModelMatrix(), body.collisionBox, car.getBodyModelMatrix(), car.body.collisionBox, 0.1f)) {
+                    glm::vec3 otherCenter = glm::vec3(car.getBodyModelMatrix()[3]);
+                    glm::vec3 myCenter = glm::vec3(getBodyModelMatrix()[3]);
+                    contactNormal = glm::normalize(myCenter - otherCenter);
+                    found = true;
+                    break;
+                }
+            }
+            // Collision avec un obstacle statique
+            if (!found) {
+                for (const auto& box : staticObstacles) {
+                    if (BoundingBox::intersectsOBB(getBodyModelMatrix(), body.collisionBox, glm::mat4(1.0f), box, 0.15f)) {
+                        glm::vec3 boxCenter = (box.min + box.max) * 0.5f;
+                        glm::vec3 myCenter = glm::vec3(getBodyModelMatrix()[3]);
+                        contactNormal = glm::normalize(myCenter - boxCenter);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            // Si pas de collision trouvé normal = direction du mouvement
+            if (!found) {
+                contactNormal = -moveDir;
+            }
+
+            // Si on essaie de reculer (moveDir et contactNormal opposés), autorise le mouvement
+            if (glm::dot(moveDir, contactNormal) > 0.0f) {
+                position = newPosition;
+            } 
+            // Applique l'effet de bounce
+            else {
+                float impactSpeed = std::abs(currentSpeed);
+                float dynamicBounceFactor = glm::clamp(impactSpeed / maxSpeed, 0.2f, 1.0f) * bounceFactor;
+                currentSpeed *= -dynamicBounceFactor;
+
+                // Si la vitesse est trop faible, on ne se déplace pas (pour éviter les micro-bounce)
+                if (!(std::abs(currentSpeed) < 0.25f)) {
+                    float dynamicBounceBack = glm::clamp(impactSpeed / maxSpeed, 0.2f, 1.0f) * bounceBackDistance;
+                    position.x += contactNormal.x * dynamicBounceBack;
+                    position.z += contactNormal.z * dynamicBounceBack;
+                } 
+            }   
         }
     }
 }
 
-bool Car::checkCollision(const Car& other) const {
-    // Récupérer les bounding boxes transformées
-    auto thisBodyBox = body.boundingBox.getTransformed(getBodyModelMatrix());
-    auto otherBodyBox = other.body.boundingBox.getTransformed(other.getBodyModelMatrix());
+bool Car::wouldCollideAt(const glm::vec3& newPosition, const std::vector<Car>& cars, const std::vector<BoundingBox>& staticObstacles, int selfId) const {
+    // Crée une copie de la matrice du corps à la nouvelle position
+    glm::mat4 futureModel = getBodyModelMatrix();
+    futureModel = glm::translate(futureModel, newPosition - position);
 
-    // Vérifier la collision entre les corps
-    if (thisBodyBox.intersects(otherBodyBox)) {
-        return true;
+    // Collision avec les autres voitures
+    for (const auto& car : cars) {
+        if (car.getId() == selfId) continue;
+        if (BoundingBox::intersectsOBB(futureModel, body.collisionBox, car.getBodyModelMatrix(), car.body.collisionBox, 0.1f)) {
+            return true;
+        }
     }
-
-    // Vérifier la collision entre les roues
-    for (int i = 0; i < 4; ++i) {
-        auto thisWheelBox = wheels[i].boundingBox.getTransformed(getCarModelMatrix());
-        for (int j = 0; j < 4; ++j) {
-            auto otherWheelBox = other.wheels[j].boundingBox.getTransformed(other.getCarModelMatrix());
-            if (thisWheelBox.intersects(otherWheelBox)) {
-                return true;
-            }
+    // Collision avec les obstacles statiques (sauf herbe)
+    for (const auto& box : staticObstacles) {
+        if (BoundingBox::intersectsOBB(futureModel, body.collisionBox, glm::mat4(1.0f), box, 0.2f)) {
+            return true;
         }
     }
 
+	// Pas de collision
     return false;
 }

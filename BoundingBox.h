@@ -23,8 +23,8 @@ public:
 
     // Vérifie si la bounding box intersecte un plan
     bool intersects(const glm::vec4& plane) const;
-    // Vérifie si la bounding box intersecte une autre bounding box
-    bool intersects(const BoundingBox& other) const;
+    // Teste la collision entre deux OBB (Oriented Bounding Box) via SAT
+    static bool intersectsOBB(const glm::mat4& modelA, const BoundingBox& boxA, const glm::mat4& modelB, const BoundingBox& boxB, float margin);
 
     // Applique les transfos de la model matrix à la Bounding Box
     BoundingBox getTransformed(const glm::mat4& modelMatrix) const;

@@ -1,39 +1,40 @@
-#pragma once
+#ifndef KEYBOARD_H
+#define KEYBOARD_H
 
 #include <GLFW/glfw3.h>
 
 class Keyboard 
 {
 public:
+	// Constructeur par défaut
 	Keyboard() = default;
 
-	// Gestion de la connection du clavier
-	bool isAssigned() const { return assigned; }
-	void assign() { assigned = true; }
-	void unassign() { assigned = false; }
-
-	// Gestion des inputs
+	// Pour savoir si une touche est pressée
 	bool isForwardPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS; }
 	bool isBackwardPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS; }
 	bool isLeftPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS; }
 	bool isRightPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS; }
 
-	bool isEnterPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS; }
-	bool isEnterReleased(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_RELEASE; }
-	bool isBackspacePressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_PRESS; }
-	bool isBackspaceReleased(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_BACKSPACE) == GLFW_RELEASE; }
-	bool isHPressed(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS; }
-	bool isHReleased(GLFWwindow* window) const { return glfwGetKey(window, GLFW_KEY_H) == GLFW_RELEASE; }
-
-
-	// Permet d'éviter que la fonction soit true à chaque frame si la touche est pressé
+	// Pour savoir si une touche a été pressée (et éviter que ça la spam / binaire)
 	bool wasEnterPressed(GLFWwindow* window) const;
 	bool wasBackspacePressed(GLFWwindow* window) const;
 	bool wasHPressed(GLFWwindow* window) const;
+	bool wasWPressed(GLFWwindow* window) const;
 
-	// Retour des inputs propre au déplacement de la voiture
+	// Augmente/Diminue le facteur d'accél. et l'angle de braquage de Car
 	float getSteerInput(GLFWwindow* window) const;
 	float getAccelInput(GLFWwindow* window) const;
+
+	// -----------------
+
+	// Assigne/Désassigne le clavier
+	void Assign() { keyboardAssigned = true; }
+	void Unassign() { keyboardAssigned = false; }
+	// Retourne si le clavier est assigné
+	bool isAssigned() const { return keyboardAssigned; }
 private:
-	bool assigned = false;
+	// Flag pour savoir si le clavier est assigné
+	bool keyboardAssigned = false;
 };
+
+#endif // KEYBOARD_H

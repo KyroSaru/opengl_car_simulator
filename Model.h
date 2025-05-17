@@ -4,6 +4,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp//scene.h>
 #include <assimp/postprocess.h>
+
 #include "Mesh.h"
 #include "Shader.h"
 #include "Camera.h"
@@ -20,8 +21,9 @@ public:
 	// Pour éviter de charger plusieurs fois la même texture
 	std::vector<Texture> loadedTextures;
 
-	// Pour définir une bounding box autour du modèle (pour le frustum culling)
+	// Bounding boxs autour du modèle (pour le frustum culling/visibilité + pour les collisions)
 	BoundingBox boundingBox;
+	BoundingBox collisionBox;
 
 	// Constructeur qui charge le modèle à partir d'un chemin (ou un noeud/partie d'un modèle)
 	Model() = default; // pour déclarer sans init dans Car.h

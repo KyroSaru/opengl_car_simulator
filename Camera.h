@@ -30,7 +30,7 @@ public:
 	// Gére les entrées de la caméra
 	void Inputs(GLFWwindow* window);
 
-	void setGamepad(std::shared_ptr<Gamepad> gamepad) { _gamepad = gamepad; }
+	void setGamepad(std::shared_ptr<Gamepad> gamepad) { gamepad = gamepad; }
 
 	glm::vec3 getPosition() const { return Position; }
 
@@ -52,8 +52,8 @@ private:
 	int width, height;
 	// Ajuster la vitesse de la caméra et la sensibilité quand on regarde autour (a voir si on peut pas faire par rapport au taux de rafraichissement de l'écran pour la sensi. car bien souvent, c'est trop rapide ou trop lent en changeant de PC)
 	float speed = 0.1f;
-	float sensitivity = 50.0f;
-	float gamepadSensitivity = 0.5f;
+	float sensitivity = 45.0f;
+	float gamepadSensitivity = 0.8f;
 
 	// flags : évite que la caméra ne saute au 1er clic gauche & sait si on vient de passer à la 3ème pers.
 	bool firstClick = true;
@@ -68,7 +68,7 @@ private:
 	float pitch = 0.0f; // Rotation verticale
 
 	// Gamepad
-	std::shared_ptr<Gamepad> _gamepad = nullptr;
+	std::shared_ptr<Gamepad> gamepad = nullptr;
 };
 
 #endif // CAMERA_H

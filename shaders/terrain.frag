@@ -1,24 +1,24 @@
 #version 420 core
 
-in vec3 FragPos;         // Position du fragment dans l'espace monde
-in flat vec3 FragNormal;          // Normale interpolée
-in vec2 FragTexCoords;       // Coord. de texture
+// En sortie, couleur du fragment
+out vec4 fragColor;
 
-out vec4 FragColor;      // Couleur finale du fragment
+// En entrée du Frag Shader (position, normal, coord. de texture du fragment)
+in vec3 fragPos;
+in flat vec3 Normal;
 
-// Lumière directionnelle
-uniform float lightIntensity; // Intensité de la lumière
-uniform vec3 lightDir;   // Direction de la lumière
-uniform vec3 lightColor; // Couleur de la lumière
-
-// Couleur du terrain
-uniform vec3 ambientColor; // Couleur ambiante
-uniform vec3 diffuseColor; // Couleur diffuse
+// Propriétés de la lumière
+uniform float lightIntensity;
+uniform vec3 lightDir;
+uniform vec3 lightColor;
+// Propriétés des matériaux du modèle
+uniform vec3 ambientColor;
+uniform vec3 diffuseColor;
 
 void main()
 {
-    // Normalise la normale
-    vec3 norm = normalize(FragNormal);
+    // Normalise la normale et la direction de la lumière
+    vec3 norm = normalize(Normal);
     vec3 lightDirection = normalize(lightDir);
 
     // Composante ambiante
@@ -30,5 +30,5 @@ void main()
 
     // Couleur finale
     vec3 result = ambient + diffuse;
-    FragColor = vec4(result, 1.0);
+    fragColor = vec4(result, 1.0);
 }

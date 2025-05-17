@@ -9,6 +9,7 @@
 #include <cerrno>
 #include <glm/glm.hpp>
 
+// Fonction utilitaire pour lire le contenu d'un fichier
 std::string getFileContents(const char* filename);
 
 class Shader

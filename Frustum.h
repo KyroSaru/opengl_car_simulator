@@ -15,7 +15,7 @@ public:
     // Calcule les plans du frustum à partir des matrices projection et vue
     void calculateFrustum(const glm::mat4& projection, const glm::mat4& view);
 
-    // Vérifie si une boîte englobante est dans le frustum
+    // Vérifie si une bounding box est dans le frustum
     bool isInFrustum(const BoundingBox& box) const;
 };
 

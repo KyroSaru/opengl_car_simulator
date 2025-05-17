@@ -1,5 +1,5 @@
 #ifndef MESH_H
-#define MESH_h
+#define MESH_H
 
 #include <string>
 
@@ -8,7 +8,8 @@
 #include "Camera.h"
 #include "Texture.h"
 
-class Mesh {
+class Mesh 
+{
 public:
 	// Mesh Data
 	std::vector<Vertex> vertices;

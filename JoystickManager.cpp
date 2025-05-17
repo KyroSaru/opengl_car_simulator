@@ -4,62 +4,70 @@ std::vector<std::shared_ptr<Gamepad>> JoystickManager::gamepads;
 
 void JoystickManager::init()
 {
-	glfwSetJoystickCallback([](int jid, int event)
+	// Quand l'on connecte une manette, on l'ajoute à la liste et inversement
+	glfwSetJoystickCallback([](int gamepadID, int event)
 		{
 			if (event == GLFW_CONNECTED)
-				JoystickManager::addGamepad(jid);
+				JoystickManager::addGamepad(gamepadID);
 			else if (event == GLFW_DISCONNECTED)
-				JoystickManager::removeGamepad(jid);
+				JoystickManager::removeGamepad(gamepadID);
 		});
 
 	// Dans le cas ou des manettes sont déjà connecté on doit manuellement les ajoutés à la liste, le gestionnaire d'évenement n'étant pas actif avant le lancement du jeu ...
-	for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; ++jid) {
-		if (glfwJoystickIsGamepad(jid)) {
-			addGamepad(jid);
+	for (int gamepadID = GLFW_JOYSTICK_1; gamepadID <= GLFW_JOYSTICK_LAST; ++gamepadID) {
+		if (glfwJoystickIsGamepad(gamepadID)) {
+			addGamepad(gamepadID);
 		}
 	}
 }
 
-void JoystickManager::addGamepad(int jid) {
-	if (glfwJoystickIsGamepad(jid)) {
-		// Vérifie si le gamepad déjà présent dans la liste
+void JoystickManager::addGamepad(int gamepadID)
+{
+	if (glfwJoystickIsGamepad(gamepadID)) {
+		// Si la manette est déjà dans la liste, on ne l'ajoute pas
 		for (const auto& g : gamepads) {
-			if (g->jid() == jid) {
+			if (g->getGamepadID() == gamepadID) {
 				return;
 			}
 		}
 
-		auto gamepad = std::make_shared<Gamepad>(jid);
+		auto gamepad = std::make_shared<Gamepad>(gamepadID);
 		gamepads.push_back(gamepad);
-		std::cout << "Le Gamepad n°" << jid + 1 << "a été ajouté à la listes de gamepads utilisables ! Nom du Gamepad : " << glfwGetJoystickName(jid) << std::endl;
+
+		std::cout << "Gamepad " << gamepadID + 1 << " added to the list of usable gamepads! Gamepad name: " << glfwGetJoystickName(gamepadID) << std::endl;
 	}
 }
 
-void JoystickManager::removeGamepad(int jid) {
-
+void JoystickManager::removeGamepad(int gamepadID)
+{
+	// Recherche la manette dans la liste
 	auto it = std::remove_if(gamepads.begin(), gamepads.end(),
-		[jid](const std::shared_ptr<Gamepad>& g) { return g->jid() == jid; });
+		[gamepadID](const std::shared_ptr<Gamepad>& g) { return g->getGamepadID() == gamepadID; });
 
+	// Supprime la manette si trouvée
 	if (it != gamepads.end()) {
 		gamepads.erase(it, gamepads.end());
-		std::cout << "Le Gamepad n°" << jid + 1 << "a été retiré de la listes de gamepads utilisables !\n";
+
+		std::cout << "Gamepad " << gamepadID + 1 << " removed from the list of usable gamepads!\n";
 	}
 }
 
+// ------------------------------
 
-bool JoystickManager::isConnected(int jid) {
-	if (glfwJoystickIsGamepad(jid)) {
+bool JoystickManager::isConnected(int gamepadID) {
+	if (glfwJoystickIsGamepad(gamepadID)) {
 		return true;
 	}
 	return false;
 }
 void JoystickManager::printAllJoysticks()  {
-	for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; ++jid) {
-		if(glfwJoystickPresent(jid))
-			std::cout << "Joystick n°" << jid + 1 << " is connected ! Joystick name: " << glfwGetJoystickName(jid) << std::endl;
+	for (int gamepadID = GLFW_JOYSTICK_1; gamepadID <= GLFW_JOYSTICK_LAST; ++gamepadID)
+	{
+		if(glfwJoystickPresent(gamepadID)) std::cout << "Gamepad " << gamepadID + 1 << " is connected ! Gamepad name: " << glfwGetJoystickName(gamepadID) << std::endl;
 	}
 }
 
+// ------------------------------
 
 std::vector<std::shared_ptr<Gamepad>> JoystickManager::findAllAvailableGamepads() {
 	std::vector<std::shared_ptr<Gamepad>> availableGamepads;

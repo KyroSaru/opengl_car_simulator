@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WORLD_H
+#define WORLD_H
 
 #include <vector>
 #include <memory>
@@ -18,7 +19,7 @@ public:
     // Mise à jour de la scène
     void updateScene(float deltaTime);
     // Rendu de la scène
-    void renderScene(Shader& carShader, Shader& headlightShader, Shader& wireframeShader, Shader& terrainShader, Shader& defaultShader);
+    void renderScene(Shader& defaultShader, Shader& terrainShader, Shader& carShader, Shader& headlightShader, Shader& wireframeShader);
 
 private:
     int width, height;
@@ -30,19 +31,22 @@ private:
     std::shared_ptr<Keyboard> keyboard;
     std::shared_ptr<Camera> noClip = nullptr;
 
+    // Flag pour activer/désactiver les wireframes
+    bool isWireframeEnable = false;
+
     // -------------------------------
 
     // Modèles 3D
     Terrain terrain;
     Skybox skybox;
     std::vector<Car> cars;
-    Model cactus1, cactus2;
+    Model cactus1, cactus2, cactus3;
     Model rock1, rock2, rock3;
     Model wood1, wood2, wood3;
     Model grass1, grass2, grass3;
     Model palmTree;
     Model buffaloSkull;
-    Model bois_abandon;
+    Model cart;
 
     // Liste des matrices modèle des cactus, pierres, ...
     std::vector<glm::mat4> cactiModelMatrices; 
@@ -50,6 +54,7 @@ private:
     std::vector<glm::mat4> woodsModelMatrices;
     std::vector<glm::mat4> grassModelMatrices;
 	std::vector<glm::mat4> bonesModelMatrices;
+    glm::mat4 cartModelMatrice;
 
 	// Propriétés de la lumière (soleil)
     glm::vec3 lightDir = glm::normalize(glm::vec3(-0.5f, -1.0f, -0.5f));
@@ -76,6 +81,11 @@ private:
 
     // -------------------------------
 
+	// Bounding Box des objets statiques pour gestion des collisions
+    std::vector<BoundingBox> staticObstacles;
+
+    // -------------------------------
+
 	// Temps écoulé depuis le début du cycle jour-nuit
     float dayNightCycleTime = 0.0f;
     // Durée d'un cycle complet
@@ -97,8 +107,13 @@ private:
     // Recalcul la zone de rendu pour chaque joueur (gestion split screen)
     void calculateViewport(int playerIndex, int& x, int& y, int& w, int& h);
 
+	// Vérifie si une voiture est en mode no clip
+    bool isAnyCarInNoClip() const;
+
 	// Dessine les éléments du monde
-    void Draw(Shader& carShader, Shader& headlightShader, Shader& wireframeShader, Shader& terrainShader, Shader& defaultShader, int viewportWidth, int viewportHeight, const glm::mat4& view);
+    void Draw(Shader& defaultShader, Shader& terrainShader, Shader& carShader, Shader& headlightShader, Shader& wireframeShader, int viewportWidth, int viewportHeight, const glm::mat4& view);
+	// Dessine les bounding box de tous les modèles en wireframe
+    void drawAllModelCollisionBoxes(Shader& wireframeShader, const glm::mat4& view, const glm::mat4& projection);
 	// Génère des modèles aléatoires par rapport au terrain
     void generateModels(std::vector<glm::mat4>& modelMatrices, int count, float minScale, float maxScale);
 	// Rendu des modèles
@@ -108,4 +123,9 @@ private:
     void updateLightDirection(float deltaTime);
 	// Met à jour le cycle jour-nuit
     void updateDayNightCycle(float deltaTime);
+
+	// Ajoute les bounding box transformées des modèles 3D dans un vecteur pour la gestion des collisions
+    void addStaticObstacles(const std::vector<Model*>& models, const std::vector<glm::mat4>& modelMatrices);
 };
+
+#endif // WORLD_H

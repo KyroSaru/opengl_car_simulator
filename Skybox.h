@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SKYBOX_H
+#define SKYBOX_H
 
 #include "Shader.h"
 #include "Texture.h"
@@ -36,3 +37,5 @@ private:
 	// Charge un cubemap à partir de 6 images
     void loadCubeMap(GLuint textureID, const std::string faces[6]);
 };
+
+#endif // SKYBOX_H

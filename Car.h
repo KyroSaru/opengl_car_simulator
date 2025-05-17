@@ -54,15 +54,15 @@ public:
 	void setKeyboard(std::shared_ptr<Keyboard> k) { _keyboard = k; }
 	bool hasKeyboard() const { return _keyboard != nullptr; }
 	// Fonctions caméra
-	std::shared_ptr<Camera> getCamera() { return camera; }
+	std::shared_ptr<Camera> getCamera() const { return camera; }
 	void setCamera(std::shared_ptr<Camera> cam) { camera = cam; }
 
 	// -----------------------
 
 	// Gére la physique de la voiture
-	void updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terrain);
-	// Gestion des collisions avec les autres voitures
-	bool checkCollision(const Car& other) const;
+	void updatePhysics(float deltaTime, GLFWwindow* window, const Terrain& terrain, const std::vector<Car>& allCars, const std::vector<BoundingBox>& staticObstacles);
+	// Teste si la voiture entrerait en collision si elle se déplaçait à la position donnée
+	bool wouldCollideAt(const glm::vec3& newPosition, const std::vector<Car>& cars, const std::vector<BoundingBox>& staticObstacles, int selfId) const;
 private:
 	// Gestion de l'ID du véhicule
 	int id;
@@ -114,6 +114,18 @@ private:
 	// Rotation des roues
 	float wheelRotationAngle = 0.0f;
 	float wheelRadius = 0.5f;
+
+	// -----------------------------
+
+	// [PARAMETRES DE REBOND]
+	float bounceFactor = 0.5f;         // Amortissement du rebond (0.5 = rebond amorti, 1.0 = rebond parfait)
+	float bounceBackDistance = 0.5f;   // Distance de recul après rebond
+	float minBounceSpeed = 0.5f;       // Vitesse minimale pour stopper le rebond
+	float bouncePenetration = 0.7f;    // Fraction de pénétration dans l'obstacle avant rebond (0 = pile au contact, 1 = à fond dans l'obstacle)
+
+	// Flag et normale pour décoincer la voiture
+	bool isStuck = false;
+	glm::vec3 stuckNormal = glm::vec3(0.0f);
 };
 
-#endif CAR_H
+#endif // CAR_H

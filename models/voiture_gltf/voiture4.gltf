@@ -1006,7 +1006,7 @@
 		{
 			"mimeType":"image/png",
 			"name":"rouge",
-			"uri":"textures/rouge.png"
+			"uri":"textures/violet.png"
 		},
 		{
 			"mimeType":"image/png",
@@ -3215,7 +3215,7 @@
 	"buffers":[
 		{
 			"byteLength":160536,
-			"uri":"voiture.bin"
+			"uri":"voiture4.bin"
 		}
 	]
 }

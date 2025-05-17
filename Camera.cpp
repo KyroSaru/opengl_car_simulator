@@ -16,7 +16,7 @@ glm::mat4 Camera::getViewMatrix()
 
 void Camera::Inputs(GLFWwindow* window)
 {
-	static bool keyPressed = false;
+	static bool keyVPressed = false;
 
 	// [TOUCHES "universelles"]
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -25,7 +25,7 @@ void Camera::Inputs(GLFWwindow* window)
 	}
 	if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
 	{
-		if (!keyPressed)
+		if (!keyVPressed)
 		{
 			if (mode == NO_CLIP) 
 			{ 
@@ -35,13 +35,13 @@ void Camera::Inputs(GLFWwindow* window)
 			else 
 				setMode(NO_CLIP);
 
-			keyPressed = true;
+			keyVPressed = true;
 			std::cout << "Change Camera mode: " << ((mode == NO_CLIP) ? "NO_CLIP" : "THIRD_PERSON") << std::endl;
 		}
 	}
 	else if (glfwGetKey(window, GLFW_KEY_V) == GLFW_RELEASE)
 	{
-		keyPressed = false;
+		keyVPressed = false;
 	}
 
 	// [NO CLIP]
@@ -131,10 +131,11 @@ void Camera::Inputs(GLFWwindow* window)
 		float rotY = 0.0f;
 
 		// Gestion Manette
-		if (_gamepad) {
-			float rightStickX = _gamepad->getRightStickX();
-			float rightStickY = _gamepad->getRightStickY();
+		if (gamepad) {
+			float rightStickX = gamepad->getRightStickX();
+			float rightStickY = gamepad->getRightStickY();
 
+			// Mutiplie par le deltaTime pour que la sensibilité soit la même peu importe la taux de rafraichissement de l'écran
 			rotX = rightStickX * gamepadSensitivity;
 			rotY = rightStickY * gamepadSensitivity;
 		}

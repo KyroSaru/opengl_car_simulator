@@ -1,5 +1,7 @@
 #include "BoundingBox.h"
 #include <glad/glad.h>
+#include <array>
+#include <vector>
 
 // Constructeur par défaut
 BoundingBox::BoundingBox() 
@@ -41,13 +43,8 @@ bool BoundingBox::intersects(const glm::vec4& plane) const
         return false;
     }
 
-    return true; // Intersecte ou est à l'intérieur
-}
-// Vérifie si la bounding box intersecte une autre bounding box
-bool BoundingBox::intersects(const BoundingBox& other) const {
-    return (min.x <= other.max.x && max.x >= other.min.x) &&
-        (min.y <= other.max.y && max.y >= other.min.y) &&
-        (min.z <= other.max.z && max.z >= other.min.z);
+    // Intersecte ou est à l'intérieur
+    return true; 
 }
 
 // Applique les transfos de la model matrix à la Bounding Box
@@ -146,4 +143,82 @@ void BoundingBox::drawWireframe(Shader& shader) const {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
+}
+
+// ---------------
+
+// Renvoie les axes locaux d'une bounding box (après transfo.)
+static std::array<glm::vec3, 3> getBoundingBoxAxes(const glm::mat4& model) {
+    return 
+    {
+        glm::normalize(glm::vec3(model[0])), // Axe X local
+        glm::normalize(glm::vec3(model[1])), // Axe Y local
+        glm::normalize(glm::vec3(model[2]))  // Axe Z local
+    };
+}
+
+// Renvoie les 8 coins d'une bounding box (après transfo.)
+static std::array<glm::vec3, 8> getBoundingBoxCorners(const BoundingBox& box, const glm::mat4& model) {
+    std::array<glm::vec3, 8> corners = {
+        glm::vec3(box.min.x, box.min.y, box.min.z),
+        glm::vec3(box.min.x, box.min.y, box.max.z),
+        glm::vec3(box.min.x, box.max.y, box.min.z),
+        glm::vec3(box.min.x, box.max.y, box.max.z),
+        glm::vec3(box.max.x, box.min.y, box.min.z),
+        glm::vec3(box.max.x, box.min.y, box.max.z),
+        glm::vec3(box.max.x, box.max.y, box.min.z),
+        glm::vec3(box.max.x, box.max.y, box.max.z)
+    };
+
+	// On transforme les coins avec la matrice modèle
+    for (auto& c : corners) 
+        c = glm::vec3(model * glm::vec4(c, 1.0f));
+
+    return corners;
+}
+
+// Projette tous les coins sur un axe et retourne le min/max projeté (pour savoir où débute/termine la bounding box sur cet axe)
+static void projectOntoAxis(const std::array<glm::vec3, 8>& corners, const glm::vec3& axis, float& min, float& max) {
+	// Initialisation avec le premier coin
+    min = max = glm::dot(corners[0], axis);
+
+    for (int i = 1; i < 8; ++i) {
+        // Produit scalaire de chaque coin sur l'axe
+        float val = glm::dot(corners[i], axis);
+		// MAJ le min/max
+        if (val < min) min = val;
+        if (val > max) max = val;
+    }
+}
+
+// Teste la collision de 2 bounding box orientées via SAT
+bool BoundingBox::intersectsOBB(const glm::mat4& modelA, const BoundingBox& boxA, const glm::mat4& modelB, const BoundingBox& boxB, float margin) {
+	// On récupère les axes des bounding box transformées (car changement d'orientation, rotation)
+    auto axesA = getBoundingBoxAxes(modelA);
+    auto axesB = getBoundingBoxAxes(modelB);
+	// On récupère les coins des bounding box transformées
+    auto cornersA = getBoundingBoxCorners(boxA, modelA);
+    auto cornersB = getBoundingBoxCorners(boxB, modelB);
+
+    std::vector<glm::vec3> axes;
+	// 3 axes de A, 3 axes de B donc 9 croisements possibles
+    axes.insert(axes.end(), axesA.begin(), axesA.end());
+    axes.insert(axes.end(), axesB.begin(), axesB.end());
+    for (const auto& a : axesA)
+        for (const auto& b : axesB)
+            axes.push_back(glm::normalize(glm::cross(a, b)));
+
+    for (const auto& axis : axes) {
+        // Ignore axes nuls
+        if (glm::length(axis) < 1e-6f) continue; 
+        float minA, maxA, minB, maxB;
+        projectOntoAxis(cornersA, axis, minA, maxA);
+        projectOntoAxis(cornersB, axis, minB, maxB);
+		if (maxA - margin < minB || maxB - margin < minA)
+            // Séparation trouvée
+            return false; 
+    }
+
+    // Pas de séparation, donc collision
+    return true; 
 }
