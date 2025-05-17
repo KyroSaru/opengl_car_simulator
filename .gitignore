@@ -6,7 +6,7 @@
 # === Répertoires de build ===
 x64/
 Debug/
-PROJET_OpenGL/
+opengl_car_simulator/
 
 # === DLLs / Libs binaires ===
 *.exp

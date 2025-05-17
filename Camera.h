@@ -51,7 +51,7 @@ private:
 	// Stocke la largeur et la hauteur de la fenêtre
 	int width, height;
 	// Ajuster la vitesse de la caméra et la sensibilité quand on regarde autour (a voir si on peut pas faire par rapport au taux de rafraichissement de l'écran pour la sensi. car bien souvent, c'est trop rapide ou trop lent en changeant de PC)
-	float speed = 0.1f;
+	float speed = 15.0f;
 	float sensitivity = 45.0f;
 	float gamepadSensitivity = 75.0f;
 

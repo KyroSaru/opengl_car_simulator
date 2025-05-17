@@ -46,39 +46,43 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 
 	// [NO CLIP]
 	if (mode == NO_CLIP) {
+		float noClipSpeed = speed;
+		
 		// Gestion clavier
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		{
-			Position += speed * Orientation;
-		}
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		{
-			Position += speed * -glm::normalize(glm::cross(Orientation, Up));
-		}
-		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		{
-			Position += speed * -Orientation;
-		}
-		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		{
-			Position += speed * glm::normalize(glm::cross(Orientation, Up));
-		}
-		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		{
-			Position += speed * Up;
-		}
-		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-		{
-			Position += speed * -Up;
-		}
 		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		{
-			speed = 0.05f;
+			noClipSpeed *= 2.0f;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
 		{
-			speed = 0.01f;
+			noClipSpeed = speed;
 		}
+
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		{
+			Position += noClipSpeed * Orientation * deltaTime;
+		}
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		{
+			Position += noClipSpeed * -glm::normalize(glm::cross(Orientation, Up)) * deltaTime;
+		}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		{
+			Position += noClipSpeed * -Orientation * deltaTime;
+		}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		{
+			Position += noClipSpeed * glm::normalize(glm::cross(Orientation, Up)) * deltaTime;
+		}
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			Position += noClipSpeed * Up * deltaTime;
+		}
+		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		{
+			Position += noClipSpeed * -Up * deltaTime;
+		}
+		
 
 		// Gestion souris
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
