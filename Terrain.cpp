@@ -89,7 +89,7 @@ void Terrain::generateFromHeightMap(const std::string& heightMapPath, float maxH
     ebo.Unbind();
 
 	// MAJ du nombre de vertices (nécessaire pour le Draw)
-    vertexCount = indices.size();
+    vertexCount = static_cast<unsigned int>(indices.size());
 }
 
 
