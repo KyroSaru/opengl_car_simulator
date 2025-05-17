@@ -14,7 +14,7 @@ glm::mat4 Camera::getViewMatrix()
 	return glm::lookAt(Position, Position + Orientation, Up);
 }
 
-void Camera::Inputs(GLFWwindow* window)
+void Camera::Inputs(GLFWwindow* window, float deltaTime)
 {
 	static bool keyVPressed = false;
 
@@ -136,8 +136,8 @@ void Camera::Inputs(GLFWwindow* window)
 			float rightStickY = gamepad->getRightStickY();
 
 			// Mutiplie par le deltaTime pour que la sensibilité soit la même peu importe la taux de rafraichissement de l'écran
-			rotX = rightStickX * gamepadSensitivity;
-			rotY = rightStickY * gamepadSensitivity;
+			rotX = rightStickX * gamepadSensitivity * deltaTime;
+			rotY = rightStickY * gamepadSensitivity * deltaTime;
 		}
 		// Gestion Souris
 		else

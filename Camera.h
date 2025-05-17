@@ -27,10 +27,10 @@ public:
 
 	// Donne la matrice vue de la caméra
 	glm::mat4 getViewMatrix();
-	// Gére les entrées de la caméra
-	void Inputs(GLFWwindow* window);
+	// Gére les entrées de la caméra (prend en compte deltaTime pour la sensibilité manette)
+	void Inputs(GLFWwindow* window, float deltaTime);
 
-	void setGamepad(std::shared_ptr<Gamepad> gamepad) { gamepad = gamepad; }
+	void setGamepad(std::shared_ptr<Gamepad> g) { gamepad = g; }
 
 	glm::vec3 getPosition() const { return Position; }
 
@@ -53,7 +53,7 @@ private:
 	// Ajuster la vitesse de la caméra et la sensibilité quand on regarde autour (a voir si on peut pas faire par rapport au taux de rafraichissement de l'écran pour la sensi. car bien souvent, c'est trop rapide ou trop lent en changeant de PC)
 	float speed = 0.1f;
 	float sensitivity = 45.0f;
-	float gamepadSensitivity = 0.8f;
+	float gamepadSensitivity = 75.0f;
 
 	// flags : évite que la caméra ne saute au 1er clic gauche & sait si on vient de passer à la 3ème pers.
 	bool firstClick = true;

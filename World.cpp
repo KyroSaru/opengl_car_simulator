@@ -255,7 +255,7 @@ void World::updateScene(float deltaTime)
 
         // MAJ de la caméra et Gestion des touches
         car.getCamera()->Update(car.getBodyPosition(), car.getDirection(), terrain);
-        car.getCamera()->Inputs(window);
+        car.getCamera()->Inputs(window, deltaTime);
 
         // ------------------------
 
