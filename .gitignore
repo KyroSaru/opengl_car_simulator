@@ -28,6 +28,8 @@ models/*
 !models/cactus
 !models/pierre
 !models/bois
+!models/palmier
 !models/herbe
 !models/crane
 !models/chariot
+
