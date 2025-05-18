@@ -3,7 +3,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
-// Constructeur
 Terrain::Terrain(const std::string& heightMapPath, float maxHeight)
 {
     generateFromHeightMap(heightMapPath, maxHeight, step);
