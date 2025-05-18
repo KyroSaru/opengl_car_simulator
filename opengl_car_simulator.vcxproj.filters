@@ -28,6 +28,9 @@
     <Filter Include="Fichiers de ressources\Textures\skybox\nuit">
       <UniqueIdentifier>{e437e91e-a7d9-478e-8a1e-c0766ab0f069}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers de ressources\Textures\terrain">
+      <UniqueIdentifier>{c9d24384-0d79-4231-8ae6-950eb15f54ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -174,18 +177,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="textures\wall.png">
-      <Filter>Fichiers de ressources\Textures</Filter>
-    </Image>
-    <Image Include="textures\brick.png">
-      <Filter>Fichiers de ressources\Textures</Filter>
-    </Image>
-    <Image Include="textures\planks.png">
-      <Filter>Fichiers de ressources\Textures</Filter>
-    </Image>
-    <Image Include="textures\planksSpec.png">
-      <Filter>Fichiers de ressources\Textures</Filter>
-    </Image>
     <Image Include="textures\skybox\jour\front.png">
       <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
     </Image>
@@ -221,6 +212,9 @@
     </Image>
     <Image Include="textures\skybox\nuit\up.png">
       <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
+    </Image>
+    <Image Include="textures\terrain\heightmap.png">
+      <Filter>Fichiers de ressources\Textures\terrain</Filter>
     </Image>
   </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@
 World::World(int windowWidth, int windowHeight, GLFWwindow* win)
     : width(windowWidth), height(windowHeight), window(win),
     keyboard(std::make_shared<Keyboard>()), 
-    terrain("models/terrain/heightmap.png", 35.0f), 
+    terrain("textures/terrain/heightmap.png", 45.0f),
     cart("models/chariot/chariot.gltf"),
     cactus1("models/cactus/cactus1.gltf"), cactus2("models/cactus/cactus2.gltf"), cactus3("models/cactus/cactus3.gltf"),
     rock1("models/pierre/pierre1.gltf"), rock2("models/pierre/pierre2.gltf"), rock3("models/pierre/pierre3.gltf"),
@@ -57,14 +57,14 @@ World::World(int windowWidth, int windowHeight, GLFWwindow* win)
 
 void World::loadModels()
 {
-    addCar("models/voiture_gltf/voiture1.gltf", glm::vec3(0.0f, 2.0f, 0.0f));
+    addCar("models/voiture/voiture1.gltf", glm::vec3(0.0f, 2.0f, 0.0f));
 
 	// Génères aléatoirement des modèles de cactus, pierres, bois, ...
-    generateModels(cactiModelMatrices, 50, 1.5f, 3.0f);
-    generateModels(rocksModelMatrices, 60, 0.5f, 2.5f);
-    generateModels(woodsModelMatrices, 25, 1.5f, 2.5f);
-    generateModels(grassModelMatrices, 40, 0.5f, 1.5f);
-	generateModels(bonesModelMatrices, 20, 0.5f, 1.5f);
+    generateModels(cactiModelMatrices, 50, 2.0f, 3.5f);
+    generateModels(rocksModelMatrices, 60, 1.0f, 2.5f);
+    generateModels(woodsModelMatrices, 25, 2.0f, 3.5f);
+    generateModels(grassModelMatrices, 40, 1.0f, 2.0f);
+    generateModels(bonesModelMatrices, 20, 0.5f, 1.5f);
 }
 
 void World::addCar(const std::string& modelPath, const glm::vec3& startPosition) 
@@ -94,7 +94,8 @@ void World::addCar(const std::string& modelPath, const glm::vec3& startPosition)
 void World::addRemovePlayers() 
 {
     if (keyboard->wasEnterPressed(window))
-        addCar("models/voiture_gltf/voiture" + std::to_string(cars.size() + 1) + ".gltf", cars[cars.size() - 1].getPosition() + glm::vec3(15.0f, 0.0f, 0.0f)); // pas optimal rien ne nous dit que cette position est libre ...
+        // Pas très optimal rien ne nous dit que cette position est libre... (sans obstacles)
+        addCar("models/voiture/voiture" + std::to_string(cars.size() + 1) + ".gltf", cars[cars.size() - 1].getPosition() + glm::vec3(15.0f, 0.0f, 0.0f)); 
 
     if (keyboard->wasBackspacePressed(window)) {
         // Si plus qu'un joueur, on ne retire par le dernier joueur
@@ -330,7 +331,7 @@ void World::renderScene(Shader& defaultShader, Shader& terrainShader, Shader& ca
 
 void World::Draw(Shader& defaultShader, Shader& terrainShader, Shader& carShader, Shader& headlightShader, Shader& wireframeShader, int viewportWidth, int viewportHeight, const glm::mat4& view)
 {
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)viewportWidth / (float)viewportHeight, 0.1f, 200.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)viewportWidth / (float)viewportHeight, 0.1f, 350.0f);
 	// Calcul du frustum à partir de la matrice de proj. et de vue
     frustum.calculateFrustum(projection, view);
 
@@ -370,9 +371,10 @@ void World::Draw(Shader& defaultShader, Shader& terrainShader, Shader& carShader
 
     // -- [CHARIOT] ---
     cartModelMatrice = glm::mat4(1.0f);
-    cartModelMatrice = glm::translate(cartModelMatrice, glm::vec3(5.0f, -6.5f, 6.0f));
+    cartModelMatrice = glm::translate(cartModelMatrice, glm::vec3(5.5f, -3.0f, 7.5f));
     cartModelMatrice = glm::rotate(cartModelMatrice, glm::radians(225.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    cartModelMatrice = glm::scale(cartModelMatrice, glm::vec3(1.75f, 1.75f, 1.75f));
+    cartModelMatrice = glm::rotate(cartModelMatrice, glm::radians(-15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    cartModelMatrice = glm::scale(cartModelMatrice, glm::vec3(2.0f, 2.0f, 2.0f));
     defaultShader.setMat4("model", cartModelMatrice);
     cart.Draw(defaultShader);
 
@@ -457,7 +459,7 @@ void World::generateModels(std::vector<glm::mat4>& modelMatrices, int count, flo
 
         // Matrice Model du modèle (transfos)
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(x, y - 20.0f, z));
+        model = glm::translate(model, glm::vec3(x, y - 20.25f, z));
         model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(scale));
 

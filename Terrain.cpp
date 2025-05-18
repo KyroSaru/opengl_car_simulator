@@ -32,8 +32,8 @@ void Terrain::generateFromHeightMap(const std::string& heightMapPath, float maxH
 			// z : ligne, x : colonne
             float heightValue = data[z * width + x] / 255.0f * maxHeight;
 
-            // Ajoutez un bruit procédural
-            float noise = (std::rand() % 100) / 100.0f * 0.7f; // Bruit entre 0 et 0.7
+            // Ajoute un bruit procédural (entre 0 et 0.7)
+            float noise = (std::rand() % 100) / 100.0f * 0.7f;
             heightValue += noise;
 
             Vertex vertex;

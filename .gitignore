@@ -6,6 +6,7 @@
 # === Répertoires de build ===
 x64/
 Debug/
+Release/
 opengl_car_simulator/
 
 # === DLLs / Libs binaires ===
@@ -16,14 +17,17 @@ INFOS.txt
 *.DS_Store
 Thumbs.db
 
+# === Textures ===
+textures/*
+!textures/terrain
+!textures/skybox/*
+
 # === Models ===
 models/*
-!models/voiture_gltf
-!models/terrain
+!models/voiture
 !models/cactus
 !models/pierre
 !models/bois
 !models/herbe
 !models/crane
 !models/chariot
-!models/bois_abandon

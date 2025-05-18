@@ -205,9 +205,6 @@
     <None Include="shaders\wireframe.frag" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="textures\brick.png" />
-    <Image Include="textures\planks.png" />
-    <Image Include="textures\planksSpec.png" />
     <Image Include="textures\skybox\jour\back.png" />
     <Image Include="textures\skybox\jour\down.png" />
     <Image Include="textures\skybox\jour\front.png" />
@@ -220,7 +217,7 @@
     <Image Include="textures\skybox\nuit\left.png" />
     <Image Include="textures\skybox\nuit\right.png" />
     <Image Include="textures\skybox\nuit\up.png" />
-    <Image Include="textures\wall.png" />
+    <Image Include="textures\terrain\heightmap.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
