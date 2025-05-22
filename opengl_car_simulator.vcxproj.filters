@@ -31,190 +31,232 @@
     <Filter Include="Fichiers de ressources\Textures\terrain">
       <UniqueIdentifier>{c9d24384-0d79-4231-8ae6-950eb15f54ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers sources\external">
+      <UniqueIdentifier>{e538991f-edcf-4f6c-bd84-1455de0ebbf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\external\imgui">
+      <UniqueIdentifier>{546ba8ce-086e-4ab8-95d5-a7260039fbb1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="glad.c">
+    <ClCompile Include="src\BoundingBox.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="src\Camera.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
+    <ClCompile Include="src\Car.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="VBO.cpp">
+    <ClCompile Include="src\EBO.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="EBO.cpp">
+    <ClCompile Include="src\Frustum.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="VAO.cpp">
+    <ClCompile Include="src\Gamepad.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="stb.cpp">
+    <ClCompile Include="src\JoystickManager.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
+    <ClCompile Include="src\Keyboard.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="src\Main.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
+    <ClCompile Include="src\Mesh.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
+    <ClCompile Include="src\Model.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="BoundingBox.cpp">
+    <ClCompile Include="src\Shader.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Frustum.cpp">
+    <ClCompile Include="src\Skybox.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Car.cpp">
+    <ClCompile Include="src\Terrain.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Terrain.cpp">
+    <ClCompile Include="src\Texture.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Gamepad.cpp">
+    <ClCompile Include="src\VAO.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
+    <ClCompile Include="src\VBO.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="JoystickManager.cpp">
+    <ClCompile Include="src\World.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="World.cpp">
+    <ClCompile Include="src\WorldEditorUI.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Skybox.cpp">
-      <Filter>Fichiers sources</Filter>
+    <ClCompile Include="src\external\imgui\imgui.cpp">
+      <Filter>Fichiers sources\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\imgui\imgui_demo.cpp">
+      <Filter>Fichiers sources\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\imgui\imgui_draw.cpp">
+      <Filter>Fichiers sources\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\imgui\imgui_impl_glfw.cpp">
+      <Filter>Fichiers sources\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Fichiers sources\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\imgui\imgui_tables.cpp">
+      <Filter>Fichiers sources\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\imgui\imgui_widgets.cpp">
+      <Filter>Fichiers sources\external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\glad.c">
+      <Filter>Fichiers sources\external</Filter>
+    </ClCompile>
+    <ClCompile Include="src\external\stb.cpp">
+      <Filter>Fichiers sources\external</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="src\BoundingBox.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="VBO.h">
+    <ClInclude Include="src\Camera.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="EBO.h">
+    <ClInclude Include="src\Car.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="VAO.h">
+    <ClInclude Include="src\EBO.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="src\Frustum.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="src\Gamepad.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="src\JoystickManager.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
+    <ClInclude Include="src\Keyboard.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="BoundingBox.h">
+    <ClInclude Include="src\MaterialColors.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Frustum.h">
+    <ClInclude Include="src\Mesh.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Car.h">
+    <ClInclude Include="src\Model.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Terrain.h">
+    <ClInclude Include="src\Shader.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Gamepad.h">
+    <ClInclude Include="src\Skybox.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Keyboard.h">
+    <ClInclude Include="src\Terrain.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="JoystickManager.h">
+    <ClInclude Include="src\Texture.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="World.h">
+    <ClInclude Include="src\VAO.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Skybox.h">
+    <ClInclude Include="src\VBO.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="src\World.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WorldEditorUI.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\wireframe.frag">
+    <None Include="assets\shaders\car.frag">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
-    <None Include="shaders\terrain.frag">
+    <None Include="assets\shaders\default.frag">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
-    <None Include="shaders\terrain.vert">
+    <None Include="assets\shaders\default.vert">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
-    <None Include="shaders\skybox.frag">
+    <None Include="assets\shaders\headlight.frag">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
-    <None Include="shaders\skybox.vert">
+    <None Include="assets\shaders\skybox.frag">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
-    <None Include="shaders\headlight.frag">
+    <None Include="assets\shaders\skybox.vert">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
-    <None Include="shaders\car.frag">
+    <None Include="assets\shaders\terrain.frag">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
-    <None Include="shaders\default.frag">
+    <None Include="assets\shaders\terrain.vert">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
-    <None Include="shaders\default.vert">
+    <None Include="assets\shaders\trail.frag">
+      <Filter>Fichiers de ressources\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\trail.vert">
+      <Filter>Fichiers de ressources\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\wireframe.frag">
       <Filter>Fichiers de ressources\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="textures\skybox\jour\front.png">
-      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
-    </Image>
-    <Image Include="textures\skybox\jour\left.png">
-      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
-    </Image>
-    <Image Include="textures\skybox\jour\right.png">
-      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
-    </Image>
-    <Image Include="textures\skybox\jour\up.png">
-      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
-    </Image>
-    <Image Include="textures\skybox\jour\back.png">
-      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
-    </Image>
-    <Image Include="textures\skybox\jour\down.png">
-      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
-    </Image>
-    <Image Include="textures\skybox\nuit\back.png">
-      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
-    </Image>
-    <Image Include="textures\skybox\nuit\down.png">
-      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
-    </Image>
-    <Image Include="textures\skybox\nuit\front.png">
-      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
-    </Image>
-    <Image Include="textures\skybox\nuit\left.png">
-      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
-    </Image>
-    <Image Include="textures\skybox\nuit\right.png">
-      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
-    </Image>
-    <Image Include="textures\skybox\nuit\up.png">
-      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
-    </Image>
-    <Image Include="textures\terrain\heightmap.png">
+    <Image Include="assets\textures\terrain\heightmap.png">
       <Filter>Fichiers de ressources\Textures\terrain</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\jour\up.png">
+      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\jour\back.png">
+      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\jour\down.png">
+      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\jour\front.png">
+      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\jour\left.png">
+      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\jour\right.png">
+      <Filter>Fichiers de ressources\Textures\skybox\jour</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\nuit\up.png">
+      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\nuit\back.png">
+      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\nuit\down.png">
+      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\nuit\front.png">
+      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\nuit\left.png">
+      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
+    </Image>
+    <Image Include="assets\textures\skybox\nuit\right.png">
+      <Filter>Fichiers de ressources\Textures\skybox\nuit</Filter>
     </Image>
   </ItemGroup>
 </Project>

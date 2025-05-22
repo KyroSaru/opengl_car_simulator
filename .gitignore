@@ -8,28 +8,27 @@ x64/
 Debug/
 Release/
 opengl_car_simulator/
+build/
 
 # === DLLs / Libs binaires ===
 *.exp
 
 # === Autres trucs à éviter ===
 INFOS.txt
-*.DS_Store
-Thumbs.db
 
 # === Textures ===
-textures/*
-!textures/terrain
-!textures/skybox/*
+assets/textures/*
+!assets/textures/terrain
+!assets/textures/skybox
 
 # === Models ===
-models/*
-!models/voiture
-!models/cactus
-!models/pierre
-!models/bois
-!models/palmier
-!models/herbe
-!models/crane
-!models/chariot
+assets/models/*
+!assets/models/voiture
+!assets/models/cactus
+!assets/models/pierre
+!assets/models/bois
+!assets/models/palmier
+!assets/models/herbe
+!assets/models/crane
+!assets/models/chariot
 

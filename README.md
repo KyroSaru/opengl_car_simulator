@@ -13,7 +13,8 @@ Un simulateur de voiture en 3D utilisant OpenGL, développé en C++14. Ce projet
 - Contrôles clavier et manette (*tester avec une manette Xbox*)
 - Rendu graphique avec OpenGL (GLFW, GLAD, GLM)
 - Système de shaders personnalisés
-- Chargement de modèles 3D externes à l'aide d'Assimp 
+- Chargement de modèles 3D externes à l'aide d'Assimp
+- Création d'une interface utilisateur pour manipuler les variables du simulateur en temps réel
 
 ## Prérequis
 
@@ -43,6 +44,7 @@ Un simulateur de voiture en 3D utilisant OpenGL, développé en C++14. Ce projet
     - `W (ou X)` : Activer/Désactiver la visibilité des collision box en wireframe
     - `V` : Switch de caméra
     - `Maj` : Augmenter la vitesse de la caméra No Clip
+    - `F1` : Ouvrir/Ferme l'éditeur du monde
 > **Remarque:** les touches manette sont entre parenthèses et correspondent à celle Xbox.
 
 
@@ -57,9 +59,10 @@ Un simulateur de voiture en 3D utilisant OpenGL, développé en C++14. Ce projet
 - `JoystickManager, Gamepad, Keyboard` : gestion des entrées
 - `Skybox` : rendu du ciel et transitions jour/nuit
 - `World` : gestion globale de la scène et des entités
+- `WorldEditorUI` : gestion de l'interface utilisateur
 
 ## Remarques
--  Si jamais la sensibilité (clavier ou manette) est trop élevé, elles sont modifiables dans la classe `Camera.h` avec les attributs `sensitivity` et `gamepadSensitivity`.
+-  Si jamais la sensibilité (clavier ou manette) est trop élevé, elles sont modifiables dans la classe `Camera.h` avec les attributs `sensitivity` et `gamepadSensitivity` ou dans l'UI.
 
 ## Auteurs
 - Kenzo
