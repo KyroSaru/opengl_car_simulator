@@ -71,20 +71,24 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\include</IncludePath>
-    <IntDir>$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)include</IncludePath>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)Libraries\include</IncludePath>
-    <IntDir>$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)include</IncludePath>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir)Libraries\include</IncludePath>
-    <IntDir>$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)include</IncludePath>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)Libraries\include</IncludePath>
-    <IntDir>$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)include</IncludePath>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -92,12 +96,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>src\external\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib; user32.lib; gdi32.lib; shell32.lib; kernel32.lib; ole32.lib; advapi32.lib; oleaut32.lib; comdlg32.lib; uuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -108,6 +115,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>src\external\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,7 +125,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib; user32.lib; gdi32.lib; shell32.lib; kernel32.lib; ole32.lib; advapi32.lib; oleaut32.lib; comdlg32.lib; uuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -124,13 +134,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\external\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib; user32.lib; gdi32.lib; shell32.lib; kernel32.lib; ole32.lib; advapi32.lib; oleaut32.lib; comdlg32.lib; uuid.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -141,83 +153,97 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src\external\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)Libraries\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib; user32.lib; gdi32.lib; shell32.lib; kernel32.lib; ole32.lib; advapi32.lib; oleaut32.lib; comdlg32.lib; uuid.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BoundingBox.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Car.cpp" />
-    <ClCompile Include="EBO.cpp" />
-    <ClCompile Include="Frustum.cpp" />
-    <ClCompile Include="Gamepad.cpp" />
-    <ClCompile Include="glad.c" />
-    <ClCompile Include="JoystickManager.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Skybox.cpp" />
-    <ClCompile Include="stb.cpp" />
-    <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="VAO.cpp" />
-    <ClCompile Include="VBO.cpp" />
-    <ClCompile Include="World.cpp" />
+    <ClCompile Include="src\BoundingBox.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\Car.cpp" />
+    <ClCompile Include="src\EBO.cpp" />
+    <ClCompile Include="src\external\glad.c" />
+    <ClCompile Include="src\external\imgui\imgui.cpp" />
+    <ClCompile Include="src\external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\external\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\external\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\external\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\external\stb.cpp" />
+    <ClCompile Include="src\Frustum.cpp" />
+    <ClCompile Include="src\Gamepad.cpp" />
+    <ClCompile Include="src\JoystickManager.cpp" />
+    <ClCompile Include="src\Keyboard.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\Model.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Skybox.cpp" />
+    <ClCompile Include="src\Terrain.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\VAO.cpp" />
+    <ClCompile Include="src\VBO.cpp" />
+    <ClCompile Include="src\World.cpp" />
+    <ClCompile Include="src\WorldEditorUI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BoundingBox.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Car.h" />
-    <ClInclude Include="EBO.h" />
-    <ClInclude Include="Frustum.h" />
-    <ClInclude Include="Gamepad.h" />
-    <ClInclude Include="JoystickManager.h" />
-    <ClInclude Include="Keyboard.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Skybox.h" />
-    <ClInclude Include="Terrain.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="VAO.h" />
-    <ClInclude Include="VBO.h" />
-    <ClInclude Include="World.h" />
+    <ClInclude Include="src\BoundingBox.h" />
+    <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\Car.h" />
+    <ClInclude Include="src\EBO.h" />
+    <ClInclude Include="src\Frustum.h" />
+    <ClInclude Include="src\Gamepad.h" />
+    <ClInclude Include="src\JoystickManager.h" />
+    <ClInclude Include="src\Keyboard.h" />
+    <ClInclude Include="src\MaterialColors.h" />
+    <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\Model.h" />
+    <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Skybox.h" />
+    <ClInclude Include="src\Terrain.h" />
+    <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\VAO.h" />
+    <ClInclude Include="src\VBO.h" />
+    <ClInclude Include="src\World.h" />
+    <ClInclude Include="src\WorldEditorUI.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\car.frag" />
-    <None Include="shaders\default.frag" />
-    <None Include="shaders\default.vert" />
-    <None Include="shaders\headlight.frag" />
-    <None Include="shaders\skybox.frag" />
-    <None Include="shaders\skybox.vert" />
-    <None Include="shaders\terrain.frag" />
-    <None Include="shaders\terrain.vert" />
-    <None Include="shaders\wireframe.frag" />
+    <None Include="assets\shaders\car.frag" />
+    <None Include="assets\shaders\default.frag" />
+    <None Include="assets\shaders\default.vert" />
+    <None Include="assets\shaders\headlight.frag" />
+    <None Include="assets\shaders\skybox.frag" />
+    <None Include="assets\shaders\skybox.vert" />
+    <None Include="assets\shaders\terrain.frag" />
+    <None Include="assets\shaders\terrain.vert" />
+    <None Include="assets\shaders\trail.frag" />
+    <None Include="assets\shaders\trail.vert" />
+    <None Include="assets\shaders\wireframe.frag" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="textures\skybox\jour\back.png" />
-    <Image Include="textures\skybox\jour\down.png" />
-    <Image Include="textures\skybox\jour\front.png" />
-    <Image Include="textures\skybox\jour\left.png" />
-    <Image Include="textures\skybox\jour\right.png" />
-    <Image Include="textures\skybox\jour\up.png" />
-    <Image Include="textures\skybox\nuit\back.png" />
-    <Image Include="textures\skybox\nuit\down.png" />
-    <Image Include="textures\skybox\nuit\front.png" />
-    <Image Include="textures\skybox\nuit\left.png" />
-    <Image Include="textures\skybox\nuit\right.png" />
-    <Image Include="textures\skybox\nuit\up.png" />
-    <Image Include="textures\terrain\heightmap.png" />
+    <Image Include="assets\textures\skybox\jour\back.png" />
+    <Image Include="assets\textures\skybox\jour\down.png" />
+    <Image Include="assets\textures\skybox\jour\front.png" />
+    <Image Include="assets\textures\skybox\jour\left.png" />
+    <Image Include="assets\textures\skybox\jour\right.png" />
+    <Image Include="assets\textures\skybox\jour\up.png" />
+    <Image Include="assets\textures\skybox\nuit\back.png" />
+    <Image Include="assets\textures\skybox\nuit\down.png" />
+    <Image Include="assets\textures\skybox\nuit\front.png" />
+    <Image Include="assets\textures\skybox\nuit\left.png" />
+    <Image Include="assets\textures\skybox\nuit\right.png" />
+    <Image Include="assets\textures\skybox\nuit\up.png" />
+    <Image Include="assets\textures\terrain\heightmap.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
