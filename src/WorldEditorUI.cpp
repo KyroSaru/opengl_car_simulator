@@ -96,8 +96,6 @@ void WorldEditorUI::Show() {
                 ImGui::ColorEdit3("Ambient Car", glm::value_ptr(world.getCars()[i].getCarsColors().ambientColor));
                 ImGui::ColorEdit3("Diffuse Car", glm::value_ptr(world.getCars()[i].getCarsColors().diffuseColor));
 
-				ImGui::Separator();
-
                 ImGui::Checkbox("Enable Wheel Trails", &world.getCars()[i].isWheelsTrailsEnabled());
                 ImGui::ColorEdit3("Trail Color", glm::value_ptr(world.getCars()[i].getTrailColor()));
                 ImGui::SliderFloat("Trail Thickness", &world.getCars()[i].getTrailThickness(), 0.1f, 2.0f);
@@ -106,7 +104,7 @@ void WorldEditorUI::Show() {
                 ImGui::Checkbox("Enable Weight Transfer (WIP)", &world.getCars()[i].isWeightTransferEnabled());
             ImGui::PopID();
 
-			
+            ImGui::Separator();
 	    } 
     }
     ImGui::End();

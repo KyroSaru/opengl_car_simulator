@@ -545,14 +545,14 @@ void World::updateDayNightCycle(float deltaTime)
     
 	// Clamp le temps du cycle entre 0 et la durée totale
     float progress = fmod(dayNightCycleTime, dayNightCycleDuration) / dayNightCycleDuration;
-    // Décalage pour que 12h = jour, 0h = nuit
+	// Décalage pour que 12h = jour, 0h = nuit (ajout de 0.5 pour centrer le cycle)
     float correctProgress = fmod(progress + 0.5f, 1.0f);
 
     // Calcul du blend pour la skybox (transition douce)
     dayNightBlend = 0.5f * (cos(correctProgress * 2.0f * glm::pi<float>()) + 1.0f);
-    // Calcul de l’intensité lumineuse (exemple : max à midi, min à minuit)
-    lightIntensity = 0.2f + 0.8f * dayNightBlend; // 0.2 = nuit, 1.0 = jour
 
+    // Calcul de l’intensité lumineuse (minimal la nuit de 0.2, maximal le jour de 1.0)
+    lightIntensity = 0.2f + 0.8f * dayNightBlend;
     // Passe la valeur de blend à la skybox
     skybox.setBlendValue(dayNightBlend);
 }
